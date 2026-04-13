@@ -1,0 +1,8 @@
+,media_filename,audio_transcription_persian_v2
+14,2026-01-01_012.mp4,"[ERROR: Command '['ffmpeg', '-y', '-i', 'scraped-media/2026-01-01_012.mp4', '-ac', '1', '-ar', '16000', '/var/folders/jw/4__g8_4s7812q133hmwkrny40000gn/T/tmpo2pxssnz.wav']' returned non-zero exit status 234.]"
+143,2026-01-03_002.mp4,"[ERROR: Command '['ffmpeg', '-y', '-i', 'scraped-media/2026-01-03_002.mp4', '-ac', '1', '-ar', '16000', '/var/folders/jw/4__g8_4s7812q133hmwkrny40000gn/T/tmp06cpaelb.wav']' returned non-zero exit status 234.]"
+504,2026-01-08_019.mp4,"[ERROR: Command '['ffmpeg', '-y', '-i', 'scraped-media/2026-01-08_019.mp4', '-ac', '1', '-ar', '16000', '/var/folders/jw/4__g8_4s7812q133hmwkrny40000gn/T/tmpv7ndo_54.wav']' returned non-zero exit status 234.]"
+673,2026-01-29_036.mp4,"[ERROR: Command '['ffmpeg', '-y', '-i', 'scraped-media/2026-01-29_036.mp4', '-ac', '1', '-ar', '16000', '/var/folders/jw/4__g8_4s7812q133hmwkrny40000gn/T/tmpu96xnvaf.wav']' returned non-zero exit status 234.]"
+901,2026-02-02_002.mp4,"[ERROR: Command '['ffmpeg', '-y', '-i', 'scraped-media/2026-02-02_002.mp4', '-ac', '1', '-ar', '16000', '/var/folders/jw/4__g8_4s7812q133hmwkrny40000gn/T/tmpo0hqkwbl.wav']' returned non-zero exit status 234.]"
+2248,2026-02-23_006.mp4,"[ERROR: Command '['ffmpeg', '-y', '-i', 'scraped-media/2026-02-23_006.mp4', '-ac', '1', '-ar', '16000', '/var/folders/jw/4__g8_4s7812q133hmwkrny40000gn/T/tmpc2o6_09b.wav']' returned non-zero exit status 234.]"
+2345,2026-02-24_036.mp4,"[ERROR: Command '['ffmpeg', '-y', '-i', 'scraped-media/2026-02-24_036.mp4', '-ac', '1', '-ar', '16000', '/var/folders/jw/4__g8_4s7812q133hmwkrny40000gn/T/tmpkgsv4vzf.wav']' returned non-zero exit status 234.]"

@@ -40,9 +40,9 @@
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="kicker">Telegram Channel Analysis</div>
-    <h1>Inside the <em>Lego</em> World of Explosive Media</h1>
-    <p class="hero-subhead">What do 2,655 Telegram posts and media content shared by this team of young Iranians tell us about Iran?</p>
-    <div class="hero-byline">Based on <span>2,840 scraped messages</span> from <span>@akhbarenfejari</span>, Jan. 1 – Apr. 9, 2026</div>
+    <h1 class="lego-headline" data-lego-text="Inside the Lego World of Explosive Media">Inside the Lego World of Explosive Media</h1>
+    <p class="hero-subhead">What 2,655 Telegram posts over 3 months of war and peace tell us about the Iranian media</p>
+    <div class="hero-byline">By <a href="https://github.com/AreebaFatimaa/explosive-media-analysis" target="_blank" rel="noopener"><span>Areeba Fatima</span></a></div>
   </div>
   <div class="scroll-hint">Scroll to begin ↓</div>
   <button class="sound-toggle" aria-label="Toggle sound" title="Toggle hero sound">🔇</button>
@@ -54,12 +54,30 @@
     <div class="intro-text">
       <h2>Who is Explosive Media?</h2>
       <p>Akhbar Enfejari — literally <em>Explosive News</em> — is a Persian-language Telegram channel run by a team of young Iranians. They cover weather, memes, films, geopolitics, and what they call the "media traps" of their enemies, all in rapid succession, often dozens of times a day.</p>
-      <p>For this investigation we scraped every post from December 31, 2025 to April 9, 2026, a period that brackets the 40-day US–Iran war that began on February 28. That gave us 2,840 messages: 981 videos, 1,665 images, and 194 text-only dispatches.</p>
+      <p>For this investigation I scraped every post from December 31, 2025 to April 9, 2026, a period that brackets the 40-day US–Iran war that began on February 28. That gave me 2,840 messages: 981 videos, 1,665 images, and 194 text-only dispatches.</p>
+      <p>In an interview, the founder of Explosive Media told me they are less than 10 people in the team, with all of them being 25 years old or under. Growing up watching <em>Captain Tsubasa</em>, he said, "We use a mix of AI tools, animation software, and editing techniques — but I won't name them. That's part of the magic." He told me he has not been contacted by The LEGO Group, and uses AI tools developed in-house or accessed via VPN because of sanctions. While YouTube and Instagram have taken down their pages several times already, he said, "Our pages have been shut down multiple times. But it's never really stopped us. We have friends all over the world who keep sharing our work across platforms." Explosive Media — or Akhbar Enfejari — has now set up a channel to receive donations via Bitcoin and other cryptocurrencies.</p>
       <p class="muted">Every post was transcribed, translated from Persian, classified by theme and keyword, and cross-referenced by subject. Videos were sampled into key-frame screenshots. The patterns that emerge are the subject of this piece.</p>
     </div>
     <div class="intro-card">
       <video src="media/2026-03-29_002.mp4" poster="screenshots/2026-03-29/2026-03-29_002.jpg" muted loop playsinline autoplay data-src="media/2026-03-29_002.mp4"></video>
       <div class="caption">A post-war Lego-style animation from the channel, March 2026. The channel pivoted to producing its own stop-motion propaganda after Tehran was struck.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CAROUSEL: signature recent Lego animations -->
+<section class="carousel-section" id="carousel-section">
+  <div class="carousel-inner">
+    <div class="section-kicker">Signature Work</div>
+    <h2 class="section-head">The Lego animations they're known for</h2>
+    <p class="section-lede">Five recent posts hand-picked from late March and early April — the stop-motion Lego style Explosive Media has made its own. Drag, swipe, or use the arrows.</p>
+    <div class="carousel" id="carousel">
+      <button class="carousel-nav prev" aria-label="Previous">‹</button>
+      <button class="carousel-nav next" aria-label="Next">›</button>
+      <div class="carousel-viewport">
+        <div class="carousel-track" id="carousel-track"></div>
+      </div>
+      <div class="carousel-dots" id="carousel-dots"></div>
     </div>
   </div>
 </section>
@@ -93,6 +111,7 @@
 
 <!-- CHAPTER 1: USING AI -->
 <section class="chapter" data-chapter="ch1" data-color="ai" id="ch1">
+  <div class="chapter-tracker" data-tracker="ch1_ai"></div>
   <div class="chapter-inner">
     <div class="chapter-header">
       <div class="chapter-marker"><span class="bullet"></span>Chapter 1 · Using AI</div>
@@ -105,6 +124,7 @@
 
 <!-- CHAPTER 2: REGIME -->
 <section class="chapter dark" data-chapter="ch2" data-color="regime" id="ch2">
+  <div class="chapter-tracker" data-tracker="ch2_regime"></div>
   <div class="chapter-inner">
     <div class="chapter-header">
       <div class="chapter-marker"><span class="bullet"></span>Chapter 2 · The Turn</div>
@@ -128,8 +148,27 @@
   </div>
 </section>
 
+<!-- REGIME SCATTER: visualising every anti vs pro post -->
+<section class="chapter regime-scatter-section" data-color="regime" id="regime-scatter">
+  <div class="chapter-tracker" data-tracker="ch2_regime"></div>
+  <div class="chapter-inner">
+    <div class="chapter-header">
+      <div class="chapter-marker"><span class="bullet"></span>The data behind the turn</div>
+      <h2>Every anti-regime and pro-regime post, plotted</h2>
+      <p class="chapter-intro" id="scatter-narrative">Each tile is one classified post. Anti-regime posts sit on the left of the dividing line, pro-regime on the right; they're stacked by date so you can watch the channel's voice shift across the war. Hover a tile to see the post.</p>
+    </div>
+    <div id="scatter-stats" class="regime-stats"></div>
+    <div class="scatter-wrap">
+      <div id="scatter-chart" class="scatter-chart"></div>
+      <div id="scatter-tooltip" class="scatter-tooltip"></div>
+    </div>
+    <p class="scatter-caption muted">Hover or tap any tile to read the post. Posts that didn't yield a clean key-frame are shown as solid color blocks.</p>
+  </div>
+</section>
+
 <!-- CHAPTER 3: POP CULTURE -->
 <section class="chapter" data-chapter="ch3" data-color="popculture" id="ch3">
+  <div class="chapter-tracker" data-tracker="ch3_popculture"></div>
   <div class="chapter-inner">
     <div class="chapter-header">
       <div class="chapter-marker"><span class="bullet"></span>Chapter 3 · Pop Culture</div>
@@ -142,6 +181,7 @@
 
 <!-- CHAPTER 4: FOREIGN INTERVENTION -->
 <section class="chapter dark" data-chapter="ch4" data-color="intervention" id="ch4">
+  <div class="chapter-tracker" data-tracker="ch4_intervention"></div>
   <div class="chapter-inner">
     <div class="chapter-header">
       <div class="chapter-marker"><span class="bullet"></span>Chapter 4 · Foreign Intervention</div>
@@ -154,6 +194,7 @@
 
 <!-- CHAPTER 5: ECONOMY -->
 <section class="chapter" data-chapter="ch5" data-color="economy" id="ch5">
+  <div class="chapter-tracker" data-tracker="ch5_economy"></div>
   <div class="chapter-inner">
     <div class="chapter-header">
       <div class="chapter-marker"><span class="bullet"></span>Chapter 5 · Iranian Economy</div>
@@ -166,6 +207,7 @@
 
 <!-- CHAPTER 6: INTERNATIONAL -->
 <section class="chapter dark" data-chapter="ch6" data-color="international" id="ch6">
+  <div class="chapter-tracker" data-tracker="ch6_international"></div>
   <div class="chapter-inner">
     <div class="chapter-header">
       <div class="chapter-marker"><span class="bullet"></span>Chapter 6 · International News</div>
@@ -178,6 +220,7 @@
 
 <!-- CHAPTER 7: WEATHER -->
 <section class="chapter" data-chapter="ch7" data-color="weather" id="ch7">
+  <div class="chapter-tracker" data-tracker="ch7_weather"></div>
   <div class="chapter-inner">
     <div class="chapter-header">
       <div class="chapter-marker"><span class="bullet"></span>Chapter 7 · Weather and Landscape</div>
@@ -206,8 +249,8 @@
 </section>
 
 <footer>
-  Reporting and data analysis · Explosive Media investigation, April 2026.<br />
-  Classification and translation pipeline built with Claude Haiku 4.5 and faster-whisper. See <a href="https://t.me/akhbarenfejari" target="_blank" rel="noopener">@akhbarenfejari</a> for the source channel.
+  Reporting and data analysis by <a href="https://github.com/AreebaFatimaa/explosive-media-analysis" target="_blank" rel="noopener">Areeba Fatima</a>, April 2026.<br />
+  Classification and translation pipeline built with Claude Haiku 4.5 and faster-whisper. Source channel: explosive media <a href="https://t.me/akhbarenfejari" target="_blank" rel="noopener">@ExplosiveMedia</a>.
 </footer>
 
 </body>

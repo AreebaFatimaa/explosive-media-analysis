@@ -528,19 +528,363 @@
   }
 
   /* ============================================================
+     LEGO HEADLINE: split chars into spans styled as bricks
+     ============================================================ */
+  function buildLegoHeadline() {
+    const h = qs('.lego-headline');
+    if (!h) return;
+    const text = h.getAttribute('data-lego-text') || h.textContent;
+    h.innerHTML = '';
+    // Lego color palette — solid, kid-friendly
+    const palette = ['#d62828','#264653','#f4a261','#2a9d8f','#e9c46a','#1d3557','#e63946','#457b9d','#fb8500','#2b9348'];
+    const words = text.split(' ');
+    words.forEach((word, wi) => {
+      const wEl = document.createElement('span');
+      wEl.className = 'lego-word';
+      [...word].forEach((ch, ci) => {
+        const b = document.createElement('span');
+        b.className = 'lego-brick';
+        // pick a color based on position, but make "Lego" stand out yellow
+        const lower = word.toLowerCase();
+        let color;
+        if (lower === 'lego') color = palette[(ci + 4) % palette.length] === '#d62828' ? '#f4a261' : '#f4a261';
+        else color = palette[(wi * 7 + ci * 3) % palette.length];
+        b.style.setProperty('--lb', color);
+        b.textContent = ch;
+        wEl.appendChild(b);
+      });
+      h.appendChild(wEl);
+    });
+  }
+
+  /* ============================================================
+     CAROUSEL
+     ============================================================ */
+  function setupCarousel(items) {
+    const track = qs('#carousel-track');
+    const dotsBox = qs('#carousel-dots');
+    const prev = qs('.carousel-nav.prev');
+    const next = qs('.carousel-nav.next');
+    if (!track) return;
+
+    items.forEach((item, i) => {
+      const slide = el('div', { className: 'carousel-slide' }, [
+        el('div', { className: 'slide-media' }),
+        el('div', { className: 'slide-caption' }, [
+          el('div', { className: 'slide-date' }, niceDate(item.date)),
+          document.createTextNode(item.caption || ''),
+        ]),
+      ]);
+      const mediaBox = slide.querySelector('.slide-media');
+      const video = el('video', {
+        muted: 'muted', loop: 'loop', playsinline: 'playsinline',
+        preload: 'metadata',
+        poster: item.poster || '',
+        'data-src': mediaURL(item.filename),
+      });
+      video.muted = true;
+      mediaBox.appendChild(video);
+      const sound = el('button', {
+        className: 'slide-sound',
+        'aria-label': 'Toggle sound',
+        onclick: (e) => {
+          e.stopPropagation();
+          video.muted = !video.muted;
+          sound.textContent = video.muted ? '🔇' : '🔊';
+          if (!video.muted && video.paused) video.play().catch(()=>{});
+        },
+      }, '🔇');
+      mediaBox.appendChild(sound);
+      track.appendChild(slide);
+
+      const d = el('button', {
+        'aria-label': `Slide ${i + 1}`,
+        onclick: () => goTo(i),
+      });
+      dotsBox.appendChild(d);
+    });
+
+    let position = 0;
+    function visibleCount() {
+      const w = window.innerWidth;
+      if (w < 720) return 1;
+      if (w < 1024) return 2;
+      return 3;
+    }
+    function maxPos() {
+      return Math.max(0, items.length - visibleCount());
+    }
+    function update() {
+      position = Math.max(0, Math.min(position, maxPos()));
+      const slideW = track.firstChild ? track.firstChild.getBoundingClientRect().width + 16 : 0;
+      track.style.transform = `translateX(${-position * slideW}px)`;
+      qsa('button', dotsBox).forEach((d, i) => {
+        d.classList.toggle('active', i === position);
+      });
+      prev.disabled = position === 0;
+      next.disabled = position >= maxPos();
+    }
+    function goTo(i) { position = i; update(); }
+    prev.addEventListener('click', () => { position--; update(); });
+    next.addEventListener('click', () => { position++; update(); });
+    window.addEventListener('resize', update);
+    update();
+
+    // Touch swipe
+    let startX = null;
+    track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend', e => {
+      if (startX == null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) { position += dx < 0 ? 1 : -1; update(); }
+      startX = null;
+    });
+  }
+
+  /* ============================================================
+     CHAPTER TRACKERS (donut + count)
+     ============================================================ */
+  function renderTrackers(stats) {
+    if (!stats || !stats.trackers) return;
+    qsa('.chapter-tracker').forEach(box => {
+      const key = box.getAttribute('data-tracker');
+      const t = stats.trackers[key];
+      if (!t) return;
+      const pct = t.percent || 0;
+      // Donut
+      const r = 22, c = 2 * Math.PI * r;
+      const dash = (pct / 100) * c;
+      box.innerHTML = '';
+      const head = el('div', { className: 'tracker-head' });
+      // SVG donut
+      const ns = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('class', 'tracker-pie');
+      svg.setAttribute('viewBox', '0 0 50 50');
+      const bg = document.createElementNS(ns, 'circle');
+      bg.setAttribute('cx', 25); bg.setAttribute('cy', 25); bg.setAttribute('r', r);
+      bg.setAttribute('fill', 'none');
+      bg.setAttribute('stroke', 'rgba(127,127,127,0.25)');
+      bg.setAttribute('stroke-width', 6);
+      svg.appendChild(bg);
+      const fg = document.createElementNS(ns, 'circle');
+      fg.setAttribute('cx', 25); fg.setAttribute('cy', 25); fg.setAttribute('r', r);
+      fg.setAttribute('fill', 'none');
+      fg.setAttribute('stroke', 'currentColor');
+      fg.setAttribute('stroke-width', 6);
+      fg.setAttribute('stroke-dasharray', `${dash} ${c}`);
+      fg.setAttribute('stroke-linecap', 'round');
+      fg.setAttribute('transform', 'rotate(-90 25 25)');
+      fg.style.color = getComputedStyle(box).getPropertyValue('--chapter-color') || '#e63946';
+      // Reach the chapter color from the parent
+      const parent = box.closest('.chapter');
+      if (parent) {
+        const cc = getComputedStyle(parent).getPropertyValue('--chapter-color').trim();
+        if (cc) fg.style.color = cc;
+      }
+      svg.appendChild(fg);
+      head.appendChild(svg);
+      head.appendChild(el('div', { className: 'tracker-num' }, [
+        el('span', { className: 'pct' }, pct.toFixed(1) + '%'),
+        el('span', { className: 'of' }, t.count.toLocaleString() + ' / ' + stats.total.toLocaleString()),
+      ]));
+      box.appendChild(head);
+      box.appendChild(el('div', { className: 'tracker-label' }, t.label));
+      if (t.subitems && t.subitems.length) {
+        const sub = el('div', { className: 'tracker-sub' });
+        t.subitems.forEach(s => {
+          sub.appendChild(el('div', { className: 'row' }, [
+            document.createTextNode(s.label),
+            el('strong', {}, s.count.toLocaleString()),
+          ]));
+        });
+        box.appendChild(sub);
+      }
+    });
+  }
+
+  /* ============================================================
+     REGIME SCATTER (anti vs pro over time)
+     ============================================================ */
+  function renderRegimeScatter(regime) {
+    if (!regime) return;
+    const stats = qs('#scatter-stats');
+    if (stats) {
+      const b = regime.breakdown || {};
+      stats.innerHTML = '';
+      stats.appendChild(el('div', { className: 'regime-stat anti' }, [
+        el('div', { className: 'head' }, 'Anti-regime'),
+        el('div', { className: 'big' }, (b.anti_total || 0).toLocaleString() + ' posts'),
+        el('div', { className: 'breakdown' }, [
+          document.createTextNode('Including '),
+          el('b', {}, (b.anti_by?.protests || 0).toString()),
+          document.createTextNode(' on protests, '),
+          el('b', {}, (b.anti_by?.iranian_economy || 0).toString()),
+          document.createTextNode(' on the Iranian economy. Anti-regime voices held the top of the feed through January and most of February.'),
+        ]),
+      ]));
+      stats.appendChild(el('div', { className: 'regime-stat pro' }, [
+        el('div', { className: 'head' }, 'Pro-regime'),
+        el('div', { className: 'big' }, (b.pro_total || 0).toLocaleString() + ' posts'),
+        el('div', { className: 'breakdown' }, [
+          document.createTextNode('Including '),
+          el('b', {}, (b.pro_by?.war_coverage || 0).toString()),
+          document.createTextNode(' tagged war coverage and '),
+          el('b', {}, (b.pro_by?.irgc_general || 0).toString()),
+          document.createTextNode(' explicitly tagged IRGC. Pro-regime posts intensified after Feb 28 and dominated the feed by mid-March.'),
+        ]),
+      ]));
+    }
+
+    const chart = qs('#scatter-chart');
+    const tooltip = qs('#scatter-tooltip');
+    if (!chart) return;
+    chart.innerHTML = '';
+    const containerW = chart.clientWidth || 800;
+    const width = containerW;
+    const height = 520;
+    const margin = { top: 50, right: 24, bottom: 50, left: 24 };
+
+    const all = [...(regime.anti || []), ...(regime.pro || [])];
+    if (!all.length) return;
+
+    const parse = d3.timeParse('%Y-%m-%d');
+    all.forEach(p => { p._d = parse(p.date); });
+    const start = parse('2025-12-31'), end = parse('2026-04-09');
+    const x = d3.scaleTime()
+      .domain([start, d3.timeDay.offset(end, 1)])
+      .range([margin.left, width - margin.right]);
+
+    // Y: anti above 0, pro below 0 — positions stacked with jitter to avoid overlap
+    const tileSize = 18;
+    function placePoints(arr, side) {
+      // group by date
+      const byDate = d3.groups(arr, p => p.date);
+      const placed = [];
+      byDate.forEach(([_d, group]) => {
+        group.forEach((p, i) => {
+          const stackOffset = (i + 0.5) * (tileSize + 2);
+          p._x = x(p._d);
+          p._y = side === 'anti'
+            ? height / 2 - 10 - stackOffset
+            : height / 2 + 10 + stackOffset;
+          placed.push(p);
+        });
+      });
+      return placed;
+    }
+    const antiPts = placePoints(regime.anti || [], 'anti');
+    const proPts  = placePoints(regime.pro  || [], 'pro');
+
+    const svg = d3.select(chart).append('svg')
+      .attr('viewBox', `0 0 ${width} ${height}`);
+
+    // Centerline divider
+    svg.append('line')
+      .attr('class', 'divider')
+      .attr('x1', margin.left).attr('x2', width - margin.right)
+      .attr('y1', height / 2).attr('y2', height / 2);
+
+    // Side labels
+    svg.append('text').attr('class', 'side-label anti')
+      .attr('x', margin.left).attr('y', margin.top - 24).text('↑ Anti-regime');
+    svg.append('text').attr('class', 'side-label pro')
+      .attr('x', margin.left).attr('y', height - margin.bottom + 36).text('↓ Pro-regime');
+
+    // War line
+    const warX = x(parse('2026-02-28'));
+    svg.append('line').attr('class', 'war-line')
+      .attr('x1', warX).attr('x2', warX)
+      .attr('y1', margin.top - 18).attr('y2', height - margin.bottom + 12);
+    svg.append('text').attr('class', 'war-label')
+      .attr('x', warX + 6).attr('y', margin.top - 22).text('Feb 28');
+
+    // X axis
+    const xAxis = d3.axisBottom(x)
+      .ticks(d3.timeMonth.every(1))
+      .tickFormat(d3.timeFormat('%b %Y'));
+    svg.append('g').attr('class', 'axis')
+      .attr('transform', `translate(0,${height - margin.bottom + 4})`)
+      .call(xAxis);
+
+    // Tiles
+    function drawSide(pts) {
+      pts.forEach((p, i) => {
+        if (p.thumb) {
+          // Use a clipPath via SVG <image> rounded
+          const grp = svg.append('g').attr('class', 'scatter-tile')
+            .attr('transform', `translate(${p._x - tileSize/2},${p._y - tileSize/2})`);
+          grp.append('rect')
+            .attr('width', tileSize).attr('height', tileSize)
+            .attr('rx', 3).attr('ry', 3)
+            .attr('fill', p.side === 'anti' ? '#f4a261' : '#dc2626');
+          grp.append('image')
+            .attr('href', p.thumb)
+            .attr('width', tileSize).attr('height', tileSize)
+            .attr('preserveAspectRatio', 'xMidYMid slice');
+          grp.append('rect')
+            .attr('width', tileSize).attr('height', tileSize)
+            .attr('rx', 3).attr('ry', 3)
+            .attr('fill', 'none')
+            .attr('stroke', p.side === 'anti' ? '#f4a261' : '#dc2626')
+            .attr('stroke-width', 1.5);
+          grp.on('mouseenter', () => showTip(grp.node(), p))
+             .on('mouseleave', hideTip)
+             .on('mousemove', e => moveTip(e));
+          // Reveal
+          setTimeout(() => grp.classed('visible', true), Math.min(2000, i * 18));
+        } else {
+          const r = svg.append('rect').attr('class', 'scatter-tile')
+            .attr('x', p._x - tileSize/2).attr('y', p._y - tileSize/2)
+            .attr('width', tileSize).attr('height', tileSize)
+            .attr('rx', 3).attr('ry', 3)
+            .attr('fill', p.side === 'anti' ? '#f4a261' : '#dc2626');
+          r.on('mouseenter', () => showTip(r.node(), p))
+           .on('mouseleave', hideTip)
+           .on('mousemove', e => moveTip(e));
+          setTimeout(() => r.classed('visible', true), Math.min(2000, i * 18));
+        }
+      });
+    }
+    drawSide(antiPts);
+    drawSide(proPts);
+
+    function showTip(node, p) {
+      tooltip.innerHTML = '';
+      tooltip.appendChild(el('span', { className: 'label ' + p.side }, p.side === 'anti' ? 'Anti-regime' : 'Pro-regime'));
+      tooltip.appendChild(el('div', { className: 'date' }, niceDate(p.date)));
+      if (p.text) tooltip.appendChild(el('div', {}, p.text));
+      if (p.theme) tooltip.appendChild(el('div', { className: 'date', style: { marginTop: '4px' } }, 'theme: ' + p.theme));
+      tooltip.style.display = 'block';
+    }
+    function hideTip() { tooltip.style.display = 'none'; }
+    function moveTip(e) {
+      const wrap = chart.parentElement.getBoundingClientRect();
+      let lx = e.clientX - wrap.left + 14;
+      let ly = e.clientY - wrap.top + 14;
+      if (lx + 320 > wrap.width) lx = e.clientX - wrap.left - 320 - 14;
+      tooltip.style.left = lx + 'px';
+      tooltip.style.top  = ly + 'px';
+    }
+  }
+
+  /* ============================================================
      BOOT
      ============================================================ */
   async function init() {
     setupHero();
+    buildLegoHeadline();
 
-    let posts, timeline, feb28, stats, mosaic;
+    let posts, timeline, feb28, stats, mosaic, regime, carousel;
     try {
-      [posts, timeline, feb28, stats, mosaic] = await Promise.all([
+      [posts, timeline, feb28, stats, mosaic, regime, carousel] = await Promise.all([
         loadJSON('data/posts.json'),
         loadJSON('data/timeline.json'),
         loadJSON('data/feb28.json'),
         loadJSON('data/stats.json'),
         loadJSON('data/mosaic.json'),
+        loadJSON('data/regime.json'),
+        loadJSON('data/carousel.json'),
       ]);
     } catch (e) {
       console.error('Data load failed', e);
@@ -571,6 +915,11 @@
     }
 
     renderMosaic(mosaic);
+
+    // New: trackers, carousel, regime scatter
+    renderTrackers(stats);
+    setupCarousel(carousel);
+    renderRegimeScatter(regime);
 
     setupVideoController();
     setupStatCounters();

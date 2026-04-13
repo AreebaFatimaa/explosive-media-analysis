@@ -12,7 +12,11 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 
-# Local scratch folders — not needed for the published site
-CSVs/
-scripts/
-transcription-scripts/
+# Heavy intermediate artifacts (kept locally, not pushed)
+transcription-scripts/transcription_chunks/
+transcription-scripts/transcription_chunks_v2/
+transcription-scripts/retranscribe_chunks_v3/
+transcription-scripts/retranscribe_feb27_chunks/
+
+# CSVs/scripts/transcription-scripts source files ARE committed
+# (build.py + the classification CSV are needed to rebuild data/)

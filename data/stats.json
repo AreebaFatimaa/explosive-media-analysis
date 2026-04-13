@@ -4,83 +4,199 @@
   "images": 1665,
   "text_only": 194,
   "themes": {
-    "International news": 97,
-    "War coverage": 44,
-    "Sports": 29,
-    "Pro-regime": 21,
-    "Weather and landscape": 19,
-    "Iranian economy": 16,
-    "Using AI": 14,
-    "Pop culture": 11,
-    "Gaza Genocide": 10,
-    "Anti-regime": 8,
-    "Foreign intervention": 8,
-    "Religious content": 4,
-    "LEGO": 4,
-    "Health": 3,
-    "Exams": 3,
-    "Protests": 3,
-    "Hamas": 1
+    "War coverage": 585,
+    "International news": 396,
+    "Sports": 317,
+    "Weather and landscape": 246,
+    "Foreign intervention": 219,
+    "Pop culture": 183,
+    "Iranian economy": 180,
+    "Pro-regime": 123,
+    "Gaza Genocide": 98,
+    "Protests": 93,
+    "Anti-regime": 85,
+    "Using AI": 84,
+    "Exams": 53,
+    "Religious content": 49,
+    "Health": 42,
+    "LEGO": 40,
+    "Hamas": 4
   },
   "top_keywords": {
-    "Iran": 77,
-    "Trump": 42,
-    "Weather": 22,
-    "Israel": 18,
-    "Middle East": 17,
-    "Sports": 16,
-    "football": 16,
-    "Venezuela": 16,
-    "diplomacy": 15,
-    "negotiations": 15,
-    "Russia": 13,
-    "war": 10,
-    "geopolitics": 10,
-    "Netanyahu": 8,
-    "snow": 7,
-    "Oman": 7,
-    "Landscape": 6,
-    "Football": 6,
-    "protest": 6,
-    "military": 6,
-    "economy": 6,
-    "Ramadan": 6,
-    "Gaza": 5,
-    "Tehran": 5,
-    "Japan": 5,
-    "America": 5,
-    "films": 5,
-    "conflict": 5,
-    "China": 5,
-    "sports": 5,
-    "missiles": 5,
-    "Protest": 4,
-    "Anti-regime": 4,
-    "propaganda": 4,
-    "Axios": 4,
-    "education": 4,
-    "UN": 4,
-    "Trump administration": 4,
-    "Maduro": 4,
-    "AI": 4
+    "Iran": 359,
+    "Trump": 319,
+    "football": 158,
+    "Israel": 130,
+    "Venezuela": 104,
+    "diplomacy": 99,
+    "negotiations": 84,
+    "geopolitics": 80,
+    "Tehran": 74,
+    "Russia": 67,
+    "snow": 59,
+    "Premier League": 51,
+    "weather": 49,
+    "military": 45,
+    "Netanyahu": 42,
+    "Middle East": 40,
+    "China": 40,
+    "America": 39,
+    "weather forecast": 39,
+    "artificial intelligence": 38,
+    "snowfall": 36,
+    "rainfall": 35,
+    "cinema": 34,
+    "Esteghlal": 34,
+    "sanctions": 33,
+    "social media": 33,
+    "rain": 33,
+    "security": 33,
+    "humor": 33,
+    "conflict": 32,
+    "US military": 31,
+    "casualties": 30,
+    "Ukraine": 30,
+    "inflation": 30,
+    "Ramadan": 30,
+    "animation": 29,
+    "Maduro": 28,
+    "satire": 28,
+    "Gaza": 26,
+    "precipitation": 26
   },
   "top_persons": {
-    "Trump": 17,
+    "Trump": 226,
+    "Netanyahu": 19,
+    "Pezeshkian": 11,
+    "Maduro": 11,
     "Abbas Araghchi": 8,
-    "Maria Zakharova": 4,
-    "Marco Rubio": 4,
-    "Trump, Netanyahu": 4,
-    "Nicolas Maduro": 3,
-    "Netanyahu": 3,
-    "Masood Pezeshkian": 3,
-    "Steve Witkoff": 2,
-    "Tadhg Hickey": 1,
-    "Ali Larijani": 1,
-    "Trump, Machado": 1,
-    "Latif Karimi": 1,
-    "Sanae Takaichi": 1,
-    "economy, iranian politics, minister": 1
+    "Araghchi": 8,
+    "Trump, Netanyahu": 8,
+    "Elon Musk": 8,
+    "Ronaldo": 7,
+    "Marco Rubio": 6,
+    "Netanyahu, Trump": 6,
+    "Macron": 6,
+    "Ayatollah Khamenei": 5,
+    "Nicolas Maduro": 5,
+    "Diosdado Cabello": 5
   },
-  "ai_yes": 25,
-  "ai_no": 284
+  "ai_yes": 126,
+  "ai_no": 2685,
+  "trackers": {
+    "ch1_ai": {
+      "label": "Posts about AI",
+      "count": 87,
+      "subitems": [
+        {
+          "label": "AI‑generated posts",
+          "count": 126,
+          "percent": 4.44
+        },
+        {
+          "label": "Sanctions / VPN bypass",
+          "count": 59,
+          "percent": 2.08
+        }
+      ],
+      "percent": 3.06
+    },
+    "ch2_regime": {
+      "label": "Anti / pro‑regime posts",
+      "count": 218,
+      "subitems": [
+        {
+          "label": "Anti‑regime",
+          "count": 85,
+          "percent": 2.99
+        },
+        {
+          "label": "Pro‑regime",
+          "count": 134,
+          "percent": 4.72
+        }
+      ],
+      "percent": 7.68
+    },
+    "ch3_popculture": {
+      "label": "Pop culture posts",
+      "count": 247,
+      "subitems": [
+        {
+          "label": "Exam‑night memes",
+          "count": 31,
+          "percent": 1.09
+        },
+        {
+          "label": "Iranian films",
+          "count": 67,
+          "percent": 2.36
+        }
+      ],
+      "percent": 8.7
+    },
+    "ch4_intervention": {
+      "label": "Foreign intervention posts",
+      "count": 230,
+      "subitems": [
+        {
+          "label": "Mexico / cartel",
+          "count": 10,
+          "percent": 0.35
+        }
+      ],
+      "percent": 8.1
+    },
+    "ch5_economy": {
+      "label": "Economy posts",
+      "count": 245,
+      "subitems": [
+        {
+          "label": "Sanctions",
+          "count": 57,
+          "percent": 2.01
+        }
+      ],
+      "percent": 8.63
+    },
+    "ch6_international": {
+      "label": "International news posts",
+      "count": 559,
+      "subitems": [
+        {
+          "label": "Gaza / genocide",
+          "count": 66,
+          "percent": 2.32
+        },
+        {
+          "label": "Axios / US media",
+          "count": 7,
+          "percent": 0.25
+        },
+        {
+          "label": "Sports",
+          "count": 347,
+          "percent": 12.22
+        }
+      ],
+      "percent": 19.68
+    },
+    "ch7_weather": {
+      "label": "Weather / landscape posts",
+      "count": 314,
+      "subitems": [
+        {
+          "label": "Snow",
+          "count": 99,
+          "percent": 3.49
+        },
+        {
+          "label": "Landscape",
+          "count": 33,
+          "percent": 1.16
+        }
+      ],
+      "percent": 11.06
+    }
+  }
 }
