@@ -1,0 +1,18 @@
+# macOS / editor noise
+.DS_Store
+.Rhistory
+.Rproj.user/
+.Rapp.history
+.idea/
+.vscode/
+Thumbs.db
+
+# Python / notebooks
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Local scratch folders — not needed for the published site
+CSVs/
+scripts/
+transcription-scripts/

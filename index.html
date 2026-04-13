@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Inside the Lego World of Explosive Media</title>
+  <meta name="description" content="A journalistic analysis of 2,840 Telegram posts from the Iranian channel @akhbarenfejari across the 40-day US–Iran war." />
+  <meta property="og:title" content="Inside the Lego World of Explosive Media" />
+  <meta property="og:description" content="What do 2,655 Telegram posts and media content shared by this team of young Iranians tell us about Iran?" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="css/main.css" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js" defer></script>
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar" role="navigation" aria-label="Chapter progress">
+  <div class="progress-bar-fill"></div>
+  <div class="progress-bar-inner">
+    <div class="progress-bar-title">
+      Explosive Media
+      <small>2,840 posts · 100 days · one Telegram channel</small>
+    </div>
+    <div class="chapter-dots">
+      <button class="chapter-dot" data-color="ai"            data-target="ch1"><span class="dot-tooltip">Using AI</span></button>
+      <button class="chapter-dot" data-color="regime"        data-target="ch2"><span class="dot-tooltip">The Turn</span></button>
+      <button class="chapter-dot" data-color="popculture"    data-target="ch3"><span class="dot-tooltip">Pop Culture</span></button>
+      <button class="chapter-dot" data-color="intervention"  data-target="ch4"><span class="dot-tooltip">Foreign Intervention</span></button>
+      <button class="chapter-dot" data-color="economy"       data-target="ch5"><span class="dot-tooltip">Economy</span></button>
+      <button class="chapter-dot" data-color="international" data-target="ch6"><span class="dot-tooltip">International</span></button>
+      <button class="chapter-dot" data-color="weather"       data-target="ch7"><span class="dot-tooltip">Weather</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 0: HERO -->
+<section class="hero" id="hero">
+  <video class="hero-video" autoplay muted loop playsinline src="media/2026-03-29_002.mp4" poster="screenshots/2026-03-29/2026-03-29_002.jpg"></video>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="kicker">Telegram Channel Analysis</div>
+    <h1>Inside the <em>Lego</em> World of Explosive Media</h1>
+    <p class="hero-subhead">What do 2,655 Telegram posts and media content shared by this team of young Iranians tell us about Iran?</p>
+    <div class="hero-byline">Based on <span>2,840 scraped messages</span> from <span>@akhbarenfejari</span>, Jan. 1 – Apr. 9, 2026</div>
+  </div>
+  <div class="scroll-hint">Scroll to begin ↓</div>
+  <button class="sound-toggle" aria-label="Toggle sound" title="Toggle hero sound">🔇</button>
+</section>
+
+<!-- INTRO -->
+<section class="intro-section">
+  <div class="intro-grid">
+    <div class="intro-text">
+      <h2>Who is Explosive Media?</h2>
+      <p>Akhbar Enfejari — literally <em>Explosive News</em> — is a Persian-language Telegram channel run by a team of young Iranians. They cover weather, memes, films, geopolitics, and what they call the "media traps" of their enemies, all in rapid succession, often dozens of times a day.</p>
+      <p>For this investigation we scraped every post from December 31, 2025 to April 9, 2026, a period that brackets the 40-day US–Iran war that began on February 28. That gave us 2,840 messages: 981 videos, 1,665 images, and 194 text-only dispatches.</p>
+      <p class="muted">Every post was transcribed, translated from Persian, classified by theme and keyword, and cross-referenced by subject. Videos were sampled into key-frame screenshots. The patterns that emerge are the subject of this piece.</p>
+    </div>
+    <div class="intro-card">
+      <video src="media/2026-03-29_002.mp4" poster="screenshots/2026-03-29/2026-03-29_002.jpg" muted loop playsinline autoplay data-src="media/2026-03-29_002.mp4"></video>
+      <div class="caption">A post-war Lego-style animation from the channel, March 2026. The channel pivoted to producing its own stop-motion propaganda after Tehran was struck.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1: DATASET OVERVIEW -->
+<section class="dataset" id="dataset" data-chapter="dataset">
+  <div class="dataset-inner">
+    <div class="section-kicker">The Dataset</div>
+    <h2 class="section-head">100 days of one Telegram channel</h2>
+    <p class="section-lede">Posting volume holds steady — between 60 and 80 messages a day — then spikes to 108 on February 28, the day Tehran was first hit. After mid-March the channel slows down and shifts to producing Lego animations.</p>
+
+    <div id="timeline-chart" class="timeline-wrap"></div>
+    <p class="timeline-caption">Daily post volume on @akhbarenfejari. The Jan. 9 – Jan. 22 gap is a data-collection interruption, not a channel silence. The Feb. 28 spike marks the first US–Israeli strikes on Tehran.</p>
+
+    <div class="stat-cards">
+      <div class="stat-card" data-type="video"><div class="num" data-key="videos">0</div><div class="label">Videos</div></div>
+      <div class="stat-card" data-type="image"><div class="num" data-key="images">0</div><div class="label">Images</div></div>
+      <div class="stat-card" data-type="text"><div class="num" data-key="text_only">0</div><div class="label">Text-only</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2 HEADER -->
+<section class="chapter" style="padding-bottom: 40px; border-bottom: 0;">
+  <div class="chapter-inner" style="text-align: center;">
+    <div class="section-kicker">Section II</div>
+    <h2 class="section-head">Seven windows into Iranian society</h2>
+    <p class="section-lede">We sorted each post into themes that emerged directly from the feed — AI and sanctions workarounds, regime politics, pop culture, foreign intervention, economy, international news, weather. Read in sequence, they form a portrait.</p>
+  </div>
+</section>
+
+<!-- CHAPTER 1: USING AI -->
+<section class="chapter" data-chapter="ch1" data-color="ai" id="ch1">
+  <div class="chapter-inner">
+    <div class="chapter-header">
+      <div class="chapter-marker"><span class="bullet"></span>Chapter 1 · Using AI</div>
+      <h2>Sanctioned tools, and how to see through them</h2>
+      <p class="chapter-intro">Iranians are dodging American AI sanctions — and cataloguing both how to use the tools and how to see through them. On January 1 the channel's first post of the year was a Christmas portrait generator for Gemini, with detailed prompt parameters and a warning to install a VPN first. Days later it ran a Porsche ad praised for being "made by humans, not AI," a geolocation investigation debunking protest footage as fake, and a tutorial on spotting AI-generated images.</p>
+    </div>
+    <div id="ch1-posts"></div>
+  </div>
+</section>
+
+<!-- CHAPTER 2: REGIME -->
+<section class="chapter dark" data-chapter="ch2" data-color="regime" id="ch2">
+  <div class="chapter-inner">
+    <div class="chapter-header">
+      <div class="chapter-marker"><span class="bullet"></span>Chapter 2 · The Turn</div>
+      <h2>From anti-regime to pro-regime in one night</h2>
+      <p class="chapter-intro">In January the channel platformed anti-regime voices: Amin Salimi telling people to protest "within a framework," mockery of Mohammad Reza Farzin's appointment as economic advisor, Foad Izadi warning not to trust Axios. Then at 01:22 AM on February 28, the first US–Israeli strike hit Tehran. The feed became a live battle tracker. By mid-March it was producing Lego-animated music videos in praise of the IRGC and Ayatollah Khamenei.</p>
+    </div>
+
+    <div class="before-after-label"><span>Before Feb 28 · Anti-regime commentary</span></div>
+    <div id="ch2-before"></div>
+
+    <!-- Feb 28 Live Feed -->
+    <div class="livefeed" id="livefeed">
+      <div class="livefeed-header">Live feed · Feb. 28, 2026</div>
+      <h3>Tehran is attacked</h3>
+      <div class="livefeed-date">The channel's timestamped dispatches begin at 01:22 AM EST</div>
+      <div class="livefeed-entries" id="livefeed-entries"></div>
+    </div>
+
+    <div class="before-after-label"><span class="accent">After Feb 28 · Pro-regime Lego propaganda</span></div>
+    <div id="ch2-after"></div>
+  </div>
+</section>
+
+<!-- CHAPTER 3: POP CULTURE -->
+<section class="chapter" data-chapter="ch3" data-color="popculture" id="ch3">
+  <div class="chapter-inner">
+    <div class="chapter-header">
+      <div class="chapter-marker"><span class="bullet"></span>Chapter 3 · Pop Culture</div>
+      <h2>Exam-night memes and film compilations</h2>
+      <p class="chapter-intro">Between the geopolitics, the team betrays how young it is. Exam-night memes. The friend who texts you the key points half an hour before the test. Parents' terms of endearment lifted from Iranian films.</p>
+    </div>
+    <div id="ch3-posts"></div>
+  </div>
+</section>
+
+<!-- CHAPTER 4: FOREIGN INTERVENTION -->
+<section class="chapter dark" data-chapter="ch4" data-color="intervention" id="ch4">
+  <div class="chapter-inner">
+    <div class="chapter-header">
+      <div class="chapter-marker"><span class="bullet"></span>Chapter 4 · Foreign Intervention</div>
+      <h2>Guadalajara, cartels, and the enemy's media traps</h2>
+      <p class="chapter-intro">Stories about foreign meddling loop back to Iran's own anxieties. The channel followed the Jalisco cartel taking Guadalajara — a 2026 World Cup host city — in granular detail, and revisited its geolocation of protest footage the regime calls foreign-staged.</p>
+    </div>
+    <div id="ch4-posts"></div>
+  </div>
+</section>
+
+<!-- CHAPTER 5: ECONOMY -->
+<section class="chapter" data-chapter="ch5" data-color="economy" id="ch5">
+  <div class="chapter-inner">
+    <div class="chapter-header">
+      <div class="chapter-marker"><span class="bullet"></span>Chapter 5 · Iranian Economy</div>
+      <h2>Sanctions, appointments, and workarounds</h2>
+      <p class="chapter-intro">Sanctions, appointments, and the cost of bypassing both. The channel mocks the Farzin appointment, charts which countries America sanctions most, and quietly teaches workarounds for sanctioned technology.</p>
+    </div>
+    <div id="ch5-posts"></div>
+  </div>
+</section>
+
+<!-- CHAPTER 6: INTERNATIONAL -->
+<section class="chapter dark" data-chapter="ch6" data-color="international" id="ch6">
+  <div class="chapter-inner">
+    <div class="chapter-header">
+      <div class="chapter-marker"><span class="bullet"></span>Chapter 6 · International News</div>
+      <h2>A very specific map of the world</h2>
+      <p class="chapter-intro">Gaza. Axios. Jeffrey Sachs saying Washington "never intended to negotiate." The Gaza football team thanking Pep Guardiola. JD Vance booed at the Milan Olympics. The channel curates a very specific map of the world — one where American media always has an angle.</p>
+    </div>
+    <div id="ch6-posts"></div>
+  </div>
+</section>
+
+<!-- CHAPTER 7: WEATHER -->
+<section class="chapter" data-chapter="ch7" data-color="weather" id="ch7">
+  <div class="chapter-inner">
+    <div class="chapter-header">
+      <div class="chapter-marker"><span class="bullet"></span>Chapter 7 · Weather and Landscape</div>
+      <h2>An obsession with snow</h2>
+      <p class="chapter-intro">Flamingos at Miankaleh wetland with Damavand in the distance. 1.5 meters of snowfall on the Mahabad-to-Boukan road. Snowfall in Ahar. In Marivan. In the border villages of Urmia. Posted with background music and no politics.</p>
+    </div>
+    <div id="ch7-grid"></div>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="closing" id="closing">
+  <div class="closing-inner">
+    <div class="section-kicker">Synthesis</div>
+    <h2>2,840 bricks, assembled</h2>
+    <p class="closing-lede">Each tile below is one post. Videos in steel blue, images in muted gray, text-only in deep navy. The red column is February 28 — the day Tehran was struck, and the day the channel's posture flipped.</p>
+
+    <div class="mosaic-wrap">
+      <canvas id="mosaic-canvas" class="mosaic-canvas"></canvas>
+      <div id="mosaic-tooltip" class="mosaic-tooltip"></div>
+      <div id="mosaic-legend" class="mosaic-legend"></div>
+    </div>
+
+    <p class="final-line"><strong>2,840 messages.</strong> 100 days. One channel. Seven windows into Iran.</p>
+  </div>
+</section>
+
+<footer>
+  Reporting and data analysis · Explosive Media investigation, April 2026.<br />
+  Classification and translation pipeline built with Claude Haiku 4.5 and faster-whisper. See <a href="https://t.me/akhbarenfejari" target="_blank" rel="noopener">@akhbarenfejari</a> for the source channel.
+</footer>
+
+</body>
+</html>
