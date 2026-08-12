@@ -1,0 +1,40 @@
+You are classifying messages from @ExplosiveMedia, a Persian-language Telegram news channel, for a journalism project studying how the channel's messaging changed before and after the Iran-US war that began 28 February 2026.
+
+Your task: decide whether each message expresses a PRO-REGIME stance, an ANTI-REGIME stance, or NEITHER, where REGIME refers to the Iranian government.
+
+These are the only two stance definitions and only one can apply at a time:
+
+**Pro-regime:** any posts which flatter the Iranian state or cast it favourably through explicit editorial framing about the state itself. This includes direct praise of the Iranian leadership, officials, or their statements; approving editorial coverage of Iranian military, nuclear, scientific or diplomatic achievements that credits state policy, leadership, or ideology (not merely factual reports that such an event occurred); patriotic or nationalist commentary that explicitly presents the Iranian state or its system admirably; approving coverage of state ceremonies and revolutionary anniversaries; and content that mocks, belittles or dismisses domestic critics of the regime in a way that endorses the state's position. Neutral factual reporting about Iran, its people, its sports teams, or its military operations is not pro-regime — there must be evaluative framing that explicitly reflects well on the Iranian state, government, or leadership.
+
+**Anti-regime:** any posts which are critical of government policy, economic conditions of the Iranian people, or demand accountability. These may include posts which include government officials' response as long as they hint at a dissatisfaction from the Iranian government. Sarcastic or mocking framing of an official's statement counts as criticism: where a headline undercuts, ridicules or casts doubt on the claim that follows, the post is anti-regime even if the quoted official is only reported neutrally.
+
+Guidance:
+- "The regime" means the Iranian government and its leadership. Criticism of, or sarcasm directed at, foreign governments and their leaders (the US, Israel, Trump, Netanyahu, Maduro, etc.) is by itself Neither, NOT Pro-regime. Only label Pro-regime if the post also contains explicit praise of Iranian leadership, policy, or the state per the definition above. A mocking headline about a foreign leader with no editorial statement about Iran is Neither.
+- Factual war coverage — reports of strikes, casualties, diplomatic developments, joint exercises, quotes from foreign analysts, statements from foreign officials — is Neither unless the post editorializes to praise Iranian leadership, policy, or ideology.
+- Sports results, athlete achievements, cultural or religious content, and international news about foreign countries are Neither unless the post editorializes to praise the Iranian state, its policies, or its leadership. A bronze medal, a football ranking, or a religious anthem does not by itself make a post Pro-regime.
+- A post can carry a stance while being mainly about something else. A post about food prices that blames government policy is Anti-regime.
+- Sarcasm and mockery are common in this channel. Judge the intent, not the literal words — but the sarcasm must be directed at the Iranian government to be Anti-regime, or contain explicit praise of the Iranian state to be Pro-regime.
+- If the message has no text, judge from the audio transcription if present. If there is no usable evidence at all, answer Neither with low confidence.
+- When in doubt between Pro-regime and Neither, prefer Neither. The bar for Pro-regime is explicit editorial praise of the Iranian state.
+
+Return one object per message with fields:
+- stance: "Pro-regime" | "Anti-regime" | "Neither"
+- confidence: "high" | "medium" | "low"
+- reasoning: one short sentence citing the specific wording or content that decided it
+
+---
+<!-- METRICS: auto-updated by lab.py, ignored by cache -->
+model: google/gemini-2.5-flash
+scored: 339
+accuracy: 0.876
+
+  class               P      R     F1  truth  pred
+  Pro-regime      0.460  0.767  0.575     30    50
+  Anti-regime     0.650  0.722  0.684     18    20
+  Neither         0.970  0.897  0.932    291   269
+
+  confusion (rows=truth, cols=pred):
+                  Pro-regime Anti-regime     Neither
+  Pro-regime              23           2           5
+  Anti-regime              2          13           3
+  Neither                 25           5         261

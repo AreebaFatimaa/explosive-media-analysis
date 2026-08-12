@@ -1,0 +1,42 @@
+You are classifying messages from @ExplosiveMedia, a Persian-language Telegram news channel, for a journalism project studying how the channel's messaging changed before and after the Iran-US war that began 28 February 2026.
+
+Your task: decide whether each message expresses a PRO-REGIME stance, an ANTI-REGIME stance, or NEITHER, where REGIME refers to the Iranian government.
+
+These are the only two stance definitions and only one can apply at a time:
+
+**Pro-regime:** any posts which flatter the Iranian state or cast it favourably through explicit editorial framing about the state itself. This includes direct praise of the Iranian leadership, officials, or their statements; approving editorial coverage of Iranian military, nuclear, scientific or diplomatic achievements that credits state policy, leadership, or ideology (not merely factual reports that such an event occurred); patriotic or nationalist commentary that explicitly presents the Iranian state or its system admirably; approving coverage of state ceremonies and revolutionary anniversaries; and content that mocks, belittles or dismisses domestic critics of the regime in a way that endorses the state's position. Neutral factual reporting about Iran, its people, its sports teams, or its military operations is not pro-regime — there must be evaluative framing that explicitly reflects well on the Iranian state, government, or leadership.
+
+**Anti-regime:** any posts which are critical of government policy, economic conditions of the Iranian people, or demand accountability. These may include posts which include government officials' response as long as they hint at a dissatisfaction from the Iranian government. Sarcastic or mocking framing of an official's statement counts as criticism: where a headline undercuts, ridicules or casts doubt on the claim that follows, the post is anti-regime even if the quoted official is only reported neutrally.
+
+Guidance:
+- "The regime" means the Iranian government and its leadership. Criticism of, or sarcasm directed at, foreign governments and their leaders (the US, Israel, Trump, Netanyahu, Maduro, etc.) is by itself Neither, NOT Pro-regime. Only label Pro-regime if the post also contains explicit praise of Iranian leadership, policy, or the state per the definition above. A mocking headline about a foreign leader with no editorial statement about Iran is Neither.
+- **Do NOT label Pro-regime based on "implicit", "implicit support", or "implicit praise".** Praise must be a direct, on-page statement about the Iranian government, leadership, policy, or ideology. If you find yourself reasoning that a post "implicitly" supports the regime, or "implies" a favourable view, or "implicitly casts" Iran in a positive light — choose Neither. Only label Pro-regime when there is an explicit editorial line in the post itself praising the state.
+- **Third-party praise of Iran is not by itself Pro-regime.** A foreign politician, analyst, journalist, or foreign media outlet quoted as praising Iran's strength, warning against attacking Iran, describing Iran as a formidable adversary, supporting Iran's positions, or expressing solidarity with Iran is Neither by default. The Iranian channel's own editorial voice must add explicit praise of the Iranian state, its leadership, its policy, or its ideology for the post to be Pro-regime. Simply relaying a foreign statement that happens to favour Iran is Neither.
+- Factual war coverage — reports of strikes, casualties, diplomatic developments, joint exercises, quotes from foreign officials — is Neither unless the post editorializes to praise Iranian leadership, policy, or ideology in the channel's own voice.
+- Sports results, athlete achievements, cultural or religious content, and international news about foreign countries are Neither unless the post editorializes to praise the Iranian state, its policies, or its leadership. A bronze medal, a football ranking, or a religious anthem does not by itself make a post Pro-regime.
+- A post can carry a stance while being mainly about something else. A post about food prices that blames government policy is Anti-regime.
+- Sarcasm and mockery are common in this channel. Judge the intent, not the literal words — but the sarcasm must be directed at the Iranian government to be Anti-regime, or contain explicit praise of the Iranian state to be Pro-regime.
+- If the message has no text, judge from the audio transcription if present. If there is no usable evidence at all, answer Neither with low confidence.
+- When in doubt between Pro-regime and Neither, prefer Neither. The bar for Pro-regime is explicit editorial praise of the Iranian state in the channel's own voice.
+
+Return one object per message with fields:
+- stance: "Pro-regime" | "Anti-regime" | "Neither"
+- confidence: "high" | "medium" | "low"
+- reasoning: one short sentence citing the specific wording or content that decided it
+
+---
+<!-- METRICS: auto-updated by lab.py, ignored by cache -->
+model: google/gemini-2.5-flash
+scored: 339
+accuracy: 0.897
+
+  class               P      R     F1  truth  pred
+  Pro-regime      0.512  0.733  0.603     30    43
+  Anti-regime     0.667  0.778  0.718     18    21
+  Neither         0.975  0.921  0.947    291   275
+
+  confusion (rows=truth, cols=pred):
+                  Pro-regime Anti-regime     Neither
+  Pro-regime              22           3           5
+  Anti-regime              2          14           2
+  Neither                 19           4         268

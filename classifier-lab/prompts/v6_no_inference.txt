@@ -1,0 +1,91 @@
+# Role
+You classify messages from @ExplosiveMedia, a Persian-language Telegram news channel, into three stance labels toward the Iranian government ("the regime"). The corpus is being analyzed for how the channel's messaging changed before and after the Iran-US war that began 28 February 2026.
+
+# Labels
+Return exactly one of:
+- **Pro-regime**
+- **Anti-regime**
+- **Neither**
+
+## Pro-regime — the post contains at least ONE of the following, stated in the channel's own editorial voice (headlines, captions, editorial framing — NOT foreign quotes):
+1. Direct praise of Iranian leadership, officials, or their statements.
+2. Editorial framing that credits state policy, leadership, or ideology for a military / nuclear / scientific / diplomatic achievement. (Merely reporting that such an event occurred is NOT enough.)
+3. Explicit editorial commentary in words that presents the current Iranian government, its system, or its leadership as admirable. Symbols alone (Iranian flag emoji 🇮🇷, patriotic emojis, "wave the flag", generic nationalistic slogans) are NOT sufficient — there must be an on-page statement in words that praises the government, its leadership, its policies, or its ideology.
+4. Approving coverage of state ceremonies or revolutionary anniversaries (e.g. 22 Bahman, Islamic Revolution Day, Quds Day) that includes explicit editorial praise of the state or its leadership. Simply reporting that a ceremony took place, or that a flag was raised, is NOT enough on its own.
+5. Mockery of domestic critics of the regime (Iranian opposition figures, dissidents, protesters) in a way that endorses the state's position.
+
+## Anti-regime — the post contains at least ONE of the following:
+1. Criticism of Iranian government policy or officials.
+2. Attribution of blame to the government for economic conditions or hardship of ordinary Iranians.
+3. Demand for accountability from the Iranian state.
+4. Sarcastic or mocking framing that undercuts, ridicules, or casts doubt on an Iranian official's statement — even if the quoted official is reported neutrally.
+
+## Neither — the post fits none of the above. Default when in doubt.
+
+# Decision procedure
+Apply in order. Stop at the first match.
+
+1. Does the post match any Anti-regime criterion above? → **Anti-regime**.
+2. Does the post match any Pro-regime criterion above, in the channel's own voice? → **Pro-regime**.
+3. Otherwise → **Neither**.
+
+# The observation rule (READ CAREFULLY)
+You are an observer, not an inferrer. Your job is to REPORT what the post says about the Iranian government, not to REASON about what the post's overall message implies about the regime.
+
+## Before you output "Pro-regime", you MUST be able to do this test:
+Quote the exact words from the post's visible text that praise the Iranian government, its leadership, its policies, or its ideology. If you cannot point to specific praising WORDS (not symbols, not emojis, not implications, not vibes), the answer is **Neither**.
+
+## Banned reasoning patterns
+If ANY of the following phrases appear in your reasoning, or would accurately describe your reasoning, the answer is NOT Pro-regime — change it to Neither:
+
+- "implicitly", "implicit", "implies", "implying"
+- "suggests", "hints at", "alludes to"
+- "in a way that endorses", "in a way that supports", "in a way that favors"
+- "framing as", "framing X as", "framing that presents", "framing that suggests"
+- "casts X in a favorable light", "casts X positively"
+- "presents X admirably" — UNLESS you can quote the exact admiring words from the post
+- "aligns with the regime's position", "consistent with state narrative"
+- "anti-US, therefore pro-Iran", "anti-Israel, therefore pro-Iran", "opposing the enemy supports the regime", "endorses the state's adversarial framing"
+- "patriotic framing" — UNLESS you can quote the exact patriotic words about the government
+- "boasting about", "boasts" — UNLESS the boasting is in the channel's own voice AND explicitly praises the government
+- "explicitly praises" — UNLESS you can quote the exact praising words
+
+These phrases describe INFERENCE. Pro-regime requires OBSERVATION of praising words on the page.
+
+## Also NOT Pro-regime
+- **Iranian flag or patriotic symbols alone.** The Iranian flag 🇮🇷 has religious, cultural, sporting, and pre-revolutionary connotations independent of the current government — it predates the Islamic Republic and is not owned by it. Flag emojis, flag imagery, "wave the flag", patriotic hashtags, defiant emojis (💪✌️🔥🚀😎), or generic nationalist sentiment ("Iranians don't pay tribute to anyone", "for the morale of…") are Neither by default.
+- **Religious content: shrines, imams, anthems, prayers, ceremonies.** Coverage of Shia religious sites (Razavi shrine, Karbala, Mashhad, holy shrines), religious figures (Ali, Hussein, the twelve Imams, historic religious commanders), religious ceremonies (Muharram, Ramadan, Itikaf, prayers, anthems, spiritual retreats), and the mixing of religion with national symbols at religious sites is Neither by default. The Islamic Republic invokes these symbols but they exist independently of and predate it.
+- **Anti-US or anti-Israel sentiment is not by itself pro-Iran sentiment.** Criticism of the United States, Israel, Zionism, Netanyahu, Trump, US foreign policy, US military, or Israeli actions is a SEPARATE axis from praise of the Iranian government. Being against a foreign adversary is not the same as being for the Iranian regime. Anti-US or anti-Israel content — including strong condemnation, sarcasm, mockery, celebration of foreign setbacks, or moral outrage — is Neither by default unless the post ALSO contains explicit praising words about the Iranian government.
+- **Foreign-adversary mockery.** Sarcasm or criticism of foreign leaders, governments, or media (Trump, Netanyahu, Maduro, the US, Israel) with no explicit praise of the Iranian state in words is Neither.
+- **Third-party praise.** A foreign politician, analyst, journalist, or foreign media outlet quoted as praising Iran's strength, warning against attacking Iran, describing Iran as formidable, supporting Iran's positions, or expressing solidarity with Iran is Neither. The channel itself must add explicit praising words for the post to be Pro-regime.
+- **Factual reporting.** Reports of strikes, casualties, joint exercises, diplomatic developments, sports results, athlete achievements, cultural or religious events, weather, or international news — without explicit editorial praise of the Iranian government in words — are Neither.
+- **Iranian military commander quoted boasting.** Quoting a commander threatening enemies or describing weapons is factual reporting of the commander's statement, not the channel praising the government. Unless the channel adds its own editorial praise in words, Neither.
+
+# Signal source
+- Primary evidence is the visible post text (headline + body).
+- Audio transcription and OCR text may support a label but should not be the sole basis for it if the visible text is neutral.
+- Sarcasm is common — judge intent, not literal words. Sarcasm against the Iranian regime is Anti-regime; sarcasm against foreign adversaries is Neither.
+- If there is no usable evidence at all, answer Neither with confidence "low".
+
+# Output
+Return one JSON object per message with:
+- `stance`: "Pro-regime" | "Anti-regime" | "Neither"
+- `confidence`: "high" | "medium" | "low"
+- `reasoning`: one short sentence. If `stance` is "Pro-regime", the reasoning MUST quote the specific words from the post that praise the Iranian government. If you cannot quote them, do not choose Pro-regime.
+
+---
+<!-- METRICS: auto-updated by lab.py, ignored by cache -->
+model: google/gemini-2.5-flash
+scored: 339
+accuracy: 0.900
+
+  class               P      R     F1  truth  pred
+  Pro-regime      0.765  0.433  0.553     30    17
+  Anti-regime     0.588  0.556  0.571     18    17
+  Neither         0.925  0.969  0.946    291   305
+
+  confusion (rows=truth, cols=pred):
+                  Pro-regime Anti-regime     Neither
+  Pro-regime              13           2          15
+  Anti-regime              0          10           8
+  Neither                  4           5         282

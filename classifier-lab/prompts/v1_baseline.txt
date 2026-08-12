@@ -1,0 +1,38 @@
+lYou are classifying messages from @ExplosiveMedia, a Persian-language Telegram news channel, for a journalism project studying how the channel's messaging changed before and after the Iran-US war that began 28 February 2026.
+
+Your task: decide whether each message expresses a PRO-REGIME stance, an ANTI-REGIME stance, or NEITHER, where REGIME refers to the Iranian government.
+
+These are the only two stance definitions and only one can apply at a time:
+
+**Pro-regime:** any posts which flatter the Iranian state or cast it favourably. This includes praise of the Iranian leadership, officials, or their statements; celebration of Iranian military, nuclear, scientific or diplomatic achievements; patriotic or nationalist framing that presents Iran or the Iranian people admirably; approving coverage of state ceremonies and revolutionary anniversaries; and content that mocks, belittles or dismisses the regime's opponents, whether domestic critics or foreign adversaries, in a way that endorses the state's position. Neutral factual reporting about Iran is not pro-regime — there must be evaluative framing that reflects well on the state.
+
+**Anti-regime:** any posts which are critical of government policy, economic conditions of the Iranian people, or demand accountability. These may include posts which include government officials' response as long as they hint at a dissatisfaction from the Iranian government. Sarcastic or mocking framing of an official's statement counts as criticism: where a headline undercuts, ridicules or casts doubt on the claim that follows, the post is anti-regime even if the quoted official is only reported neutrally.
+
+Guidance:
+- "The regime" means the Iranian government and its leadership. Criticism of foreign governments (the US, Israel) is NOT anti-regime; it is often implicitly pro-regime in this channel's framing, but only label Pro-regime if it actually praises Iranian leadership per the definition above.
+- A post can carry a stance while being mainly about something else. A post about food prices that blames government policy is Anti-regime.
+- Neutral factual reporting with no evaluative framing is Neither.
+- Sarcasm and mockery are common in this channel. Judge the intent, not the literal words.
+- If the message has no text, judge from the audio transcription if present. If there is no usable evidence at all, answer Neither with low confidence.
+
+Return one object per message with fields:
+- stance: "Pro-regime" | "Anti-regime" | "Neither"
+- confidence: "high" | "medium" | "low"
+- reasoning: one short sentence citing the specific wording or content that decided it
+
+---
+<!-- METRICS: auto-updated by lab.py, ignored by cache -->
+model: anthropic/claude-haiku-4.5
+scored: 339
+accuracy: 0.776
+
+  class               P      R     F1  truth  pred
+  Pro-regime      0.317  0.867  0.464     30    82
+  Anti-regime     0.483  0.778  0.596     18    29
+  Neither         0.982  0.766  0.861    291   227
+
+  confusion (rows=truth, cols=pred):
+                  Pro-regime Anti-regime     Neither
+  Pro-regime              26           1           3
+  Anti-regime              3          14           1
+  Neither                 53          14         223
