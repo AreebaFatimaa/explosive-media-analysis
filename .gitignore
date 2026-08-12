@@ -35,3 +35,10 @@ cache_lego/
 *.bak
 notebooks/explosive_media_messages.csv
 notebooks/golden_dataset_extra.csv
+
+# Classifier response caches — regenerable, kept local
+cache_p1v3/
+cache_p1v4/
+
+# Session-specific progress watcher
+scripts/watch_v4_cell.py

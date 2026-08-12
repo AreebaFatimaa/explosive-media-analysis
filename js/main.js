@@ -602,6 +602,269 @@
       .on('mouseleave', () => { tip.style('opacity', 0); focus.style('opacity', 0); });
   }
 
+  /* ------------------------------------------------------------------ *
+   * Weekly regime-stance chart, stacked bars of RAW COUNTS.
+   *
+   * Replaces the mirrored percentage lines. Counts rather than shares, so a
+   * week with a handful of posts reads as a short bar instead of being
+   * rescaled into a percentage that implies a trend. Every week is drawn —
+   * there is no support threshold and nothing is hollowed out or hidden.
+   *
+   * Weeks where nothing was collected are not present in the feed at all, so
+   * the grid is rebuilt at a 7-day step and the missing weeks are shaded grey.
+   * ------------------------------------------------------------------ */
+  function renderStanceWeeklyBars(feed, opts = {}) {
+    const container = qs(opts.target);
+    if (!container || !feed || !feed.weeks || !feed.weeks.length) return;
+    container.innerHTML = '';
+
+    const parse = d3.timeParse('%Y-%m-%d');
+    const key = d3.timeFormat('%Y-%m-%d');
+    const given = feed.weeks.map(w => ({ ...w, d: parse(w.week) }))
+                            .sort((a, b) => a.d - b.d);
+
+    // Rebuild a complete weekly grid. timeDay.offset (not +7*864e5) so a DST
+    // change cannot shift a key and drop a week.
+    const byKey = new Map(given.map(d => [d.week, d]));
+    const last = given[given.length - 1].d;
+    const weeks = [];
+    for (let d = given[0].d; d <= last; d = d3.timeDay.offset(d, 7)) {
+      const k = key(d);
+      weeks.push(byKey.get(k) ||
+        { week: k, d: new Date(+d), n: null, pro: 0, anti: 0, missing: true });
+    }
+    weeks.forEach(w => { w.stance = (w.pro || 0) + (w.anti || 0); });
+
+    const width = Math.min(940, container.clientWidth || 940);
+    const height = 420;
+    const margin = { top: 34, right: 26, bottom: 42, left: 52 };
+    // Same hues as before: validated on this dark surface (protan ΔE 21.9).
+    const PRO = '#2a78d6', ANTI = '#e34946', INK = '#f2f0eb';
+    const LEGO = '#3f4d60';                      // neutral slate under the hatch
+    const GAP = '#0d1117';                       // section bg — the segment gap
+
+    const svg = d3.select(container).append('svg')
+      .attr('class', 'stance-svg')
+      .attr('viewBox', `0 0 ${width} ${height}`);
+
+    const x = d3.scaleTime()
+      .domain([weeks[0].d, d3.timeDay.offset(last, 7)])
+      .range([margin.left, width - margin.right]);
+    const y = d3.scaleLinear()
+      .domain([0, (d3.max(weeks, d => d.stance) || 1) * 1.18])
+      .range([height - margin.bottom, margin.top]);
+
+    const bw = d => Math.max(1, x(d3.timeDay.offset(d.d, 7)) - x(d.d) - 2);
+
+    svg.append('g').selectAll('line').data(y.ticks(6)).join('line')
+      .attr('x1', margin.left).attr('x2', width - margin.right)
+      .attr('y1', d => y(d)).attr('y2', d => y(d))
+      .attr('stroke', 'rgba(255,255,255,0.07)');
+
+    // Stacked: pro at the base, anti above it. A GAP-coloured stroke gives the
+    // 2px separation between the two segments.
+    [['pro', 0, PRO], ['anti', 1, ANTI]].forEach(([acc, stackAbove, col]) => {
+      svg.append('g').selectAll('rect')
+        .data(weeks.filter(d => (d[acc] || 0) > 0)).join('rect')
+        .attr('x', d => x(d.d))
+        .attr('y', d => y((stackAbove ? d.pro || 0 : 0) + d[acc]))
+        .attr('width', bw)
+        .attr('height', d => Math.max(0, y(0) - y(d[acc])))
+        .attr('fill', col)
+        .attr('stroke', GAP).attr('stroke-width', 1.2);
+    });
+
+    // LEGO band: the Phase 2 vision classifier's count for the week, straight
+    // from lego_predictions.csv. It is an INDEPENDENT classification — not a
+    // subdivision of the stance model — so it gets its own neutral fill rather
+    // than a tint of the pro-regime blue, and it is drawn as an overlay from
+    // the baseline that adds no height to the stack. No post is counted twice,
+    // and where LEGO exceeds the stance bars (a week whose LEGO posts took no
+    // stance) the band simply rises past them.
+    if (opts.lego) {
+      const pid = 'lego-hatch-' + String(opts.target || '').replace(/\W/g, '');
+      const pat = svg.append('defs').append('pattern')
+        .attr('id', pid).attr('width', 7).attr('height', 7)
+        .attr('patternUnits', 'userSpaceOnUse')
+        .attr('patternTransform', 'rotate(45)');
+      pat.append('rect').attr('width', 7).attr('height', 7).attr('fill', LEGO);
+      pat.append('line').attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 7)
+        .attr('stroke', 'rgba(255,255,255,0.92)').attr('stroke-width', 2.4);
+
+      svg.append('g').selectAll('rect')
+        .data(weeks.filter(d => (d.lego || 0) > 0)).join('rect')
+        .attr('x', d => x(d.d))
+        .attr('y', d => y(d.lego))
+        .attr('width', bw)
+        .attr('height', d => Math.max(0, y(0) - y(d.lego)))
+        .attr('fill', `url(#${pid})`)
+        .attr('stroke', GAP).attr('stroke-width', 1.2);
+    }
+
+    // A collected week that produced no stance-taking posts would be an empty
+    // slot, indistinguishable from a no-collection week. Mark it on the base.
+    svg.append('g').selectAll('line')
+      .data(weeks.filter(d => !d.missing && d.n > 0 && d.stance === 0)).join('line')
+      .attr('x1', d => x(d.d)).attr('x2', d => x(d.d) + bw(d))
+      .attr('y1', y(0)).attr('y2', y(0))
+      .attr('stroke', 'rgba(255,255,255,0.55)').attr('stroke-width', 2.6);
+
+    svg.append('line')
+      .attr('x1', margin.left).attr('x2', width - margin.right)
+      .attr('y1', y(0)).attr('y2', y(0))
+      .attr('stroke', INK).attr('stroke-width', 1.2);
+
+    const war = parse(feed.war_start);
+    svg.append('line').attr('x1', x(war)).attr('x2', x(war))
+      .attr('y1', margin.top - 8).attr('y2', height - margin.bottom)
+      .attr('stroke', INK).attr('stroke-width', 1.6).attr('stroke-dasharray', '6 4');
+    svg.append('text').attr('x', x(war) + 8).attr('y', margin.top - 12)
+      .attr('fill', INK).attr('font-size', 13).attr('font-weight', 700)
+      .text('the war begins');
+
+    svg.append('g').attr('transform', `translate(${margin.left},0)`)
+      .call(d3.axisLeft(y).ticks(6).tickFormat(d3.format('d')))
+      .call(g => g.select('.domain').remove())
+      .attr('color', 'rgba(255,255,255,0.5)').attr('font-size', 12);
+    svg.append('g').attr('transform', `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(x).ticks(7).tickFormat(d3.timeFormat('%d %b')))
+      .call(g => g.select('.domain').remove())
+      .attr('color', 'rgba(255,255,255,0.5)').attr('font-size', 12);
+
+    const tip = d3.select(container).append('div').attr('class', 'stance-tooltip');
+    svg.append('g').selectAll('rect').data(weeks).join('rect')
+      .attr('x', d => x(d.d)).attr('y', margin.top)
+      .attr('width', d => bw(d) + 2)
+      .attr('height', height - margin.top - margin.bottom)
+      .attr('fill', 'transparent').style('cursor', 'crosshair')
+      .on('mousemove', function (event, d) {
+        const fmt = d3.timeFormat('%d %b %Y');
+        tip.style('opacity', 1)
+          .style('left', Math.min(x(d.d) / width * 100, 72) + '%')
+          .style('top', '8px')
+          .html(
+            `<strong>week of ${fmt(d.d)}</strong>` +
+            (d.missing
+              ? '<div class="tt-n">no messages collected</div>'
+              : `<div class="tt-row"><span class="sw" style="background:${PRO}"></span>Pro-regime <b>${d.pro}</b> <em>(${d.pro_pct}%)</em></div>` +
+                `<div class="tt-row"><span class="sw" style="background:${ANTI}"></span>Anti-regime <b>${d.anti}</b> <em>(${d.anti_pct}%)</em></div>` +
+                (opts.lego ? `<div class="tt-row"><span class="sw" style="background:${LEGO};background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.92) 0 2px,transparent 2px 5px)"></span>LEGO <b>${d.lego || 0}</b> <em>(Phase 2)</em></div>` : '') +
+                (opts.lego ? `<div class="tt-n">${d.n} messages that week · LEGO counted separately from stance</div>`
+                           : `<div class="tt-n">${d.n} messages that week</div>`))
+          );
+      })
+      .on('mouseleave', () => { tip.style('opacity', 0); });
+  }
+
+  /* ------------------------------------------------------------------ *
+   * LEGO-only weekly chart: the 24 Phase 2 LEGO posts, stacked by their
+   * ROUND-2 (v2) stance labels — 18 pro-regime, 6 neither. Counts, not shares.
+   * The pro/anti bars in the other chart use v4; this one deliberately does
+   * not, so it reads lego_*_v2 rather than the v4 fields.
+   *
+   * Note on the empty series: no LEGO post is classified anti-regime under
+   * either stance version, so the light-yellow segment exists in the legend
+   * and the code but has nothing to draw.
+   * ------------------------------------------------------------------ */
+  function renderLegoStanceBars(feed, opts = {}) {
+    const container = qs(opts.target);
+    if (!container || !feed || !feed.weeks || !feed.weeks.length) return;
+    container.innerHTML = '';
+
+    const parse = d3.timeParse('%Y-%m-%d');
+    const weeks = feed.weeks.map(w => ({ ...w, d: parse(w.week) }))
+                            .sort((a, b) => a.d - b.d);
+    weeks.forEach(w => {
+      w.legoTotal = (w.lego_pro_v2 || 0) + (w.lego_anti_v2 || 0) + (w.lego_neither_v2 || 0);
+    });
+
+    const width = Math.min(940, container.clientWidth || 940);
+    const height = 420;
+    const margin = { top: 34, right: 26, bottom: 42, left: 52 };
+    const L_PRO = '#b85c1a';      // dark orange — pro-regime LEGO
+    const L_ANTI = '#f2d275';     // light yellow — anti-regime LEGO (none exist)
+    const L_NEITHER = '#4a5666';  // muted — LEGO taking no stance
+    const INK = '#f2f0eb', GAP = '#0d1117';
+
+    const svg = d3.select(container).append('svg')
+      .attr('class', 'stance-svg')
+      .attr('viewBox', `0 0 ${width} ${height}`);
+
+    const last = weeks[weeks.length - 1].d;
+    const x = d3.scaleTime()
+      .domain([weeks[0].d, d3.timeDay.offset(last, 7)])
+      .range([margin.left, width - margin.right]);
+    const y = d3.scaleLinear()
+      .domain([0, (d3.max(weeks, d => d.legoTotal) || 1) * 1.25])
+      .range([height - margin.bottom, margin.top]);
+    const bw = d => Math.max(1, x(d3.timeDay.offset(d.d, 7)) - x(d.d) - 2);
+
+    svg.append('g').selectAll('line').data(y.ticks(5)).join('line')
+      .attr('x1', margin.left).attr('x2', width - margin.right)
+      .attr('y1', d => y(d)).attr('y2', d => y(d))
+      .attr('stroke', 'rgba(255,255,255,0.07)');
+
+    // Bottom to top: pro-regime, anti-regime, neither.
+    const series = [['lego_pro_v2', L_PRO], ['lego_anti_v2', L_ANTI],
+                    ['lego_neither_v2', L_NEITHER]];
+    series.forEach(([acc, col], i) => {
+      const below = series.slice(0, i).map(s => s[0]);
+      svg.append('g').selectAll('rect')
+        .data(weeks.filter(d => (d[acc] || 0) > 0)).join('rect')
+        .attr('x', d => x(d.d))
+        .attr('y', d => y(below.reduce((s, k) => s + (d[k] || 0), 0) + d[acc]))
+        .attr('width', bw)
+        .attr('height', d => Math.max(0, y(0) - y(d[acc])))
+        .attr('fill', col)
+        .attr('stroke', GAP).attr('stroke-width', 1.2);
+    });
+
+    svg.append('line')
+      .attr('x1', margin.left).attr('x2', width - margin.right)
+      .attr('y1', y(0)).attr('y2', y(0))
+      .attr('stroke', INK).attr('stroke-width', 1.2);
+
+    const war = parse(feed.war_start);
+    svg.append('line').attr('x1', x(war)).attr('x2', x(war))
+      .attr('y1', margin.top - 8).attr('y2', height - margin.bottom)
+      .attr('stroke', INK).attr('stroke-width', 1.6).attr('stroke-dasharray', '6 4');
+    svg.append('text').attr('x', x(war) + 8).attr('y', margin.top - 12)
+      .attr('fill', INK).attr('font-size', 13).attr('font-weight', 700)
+      .text('the war begins');
+
+    svg.append('g').attr('transform', `translate(${margin.left},0)`)
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('d')))
+      .call(g => g.select('.domain').remove())
+      .attr('color', 'rgba(255,255,255,0.5)').attr('font-size', 12);
+    svg.append('g').attr('transform', `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(x).ticks(7).tickFormat(d3.timeFormat('%d %b')))
+      .call(g => g.select('.domain').remove())
+      .attr('color', 'rgba(255,255,255,0.5)').attr('font-size', 12);
+
+    const tip = d3.select(container).append('div').attr('class', 'stance-tooltip');
+    svg.append('g').selectAll('rect').data(weeks).join('rect')
+      .attr('x', d => x(d.d)).attr('y', margin.top)
+      .attr('width', d => bw(d) + 2)
+      .attr('height', height - margin.top - margin.bottom)
+      .attr('fill', 'transparent').style('cursor', 'crosshair')
+      .on('mousemove', function (event, d) {
+        const fmt = d3.timeFormat('%d %b %Y');
+        tip.style('opacity', 1)
+          .style('left', Math.min(x(d.d) / width * 100, 72) + '%')
+          .style('top', '8px')
+          .html(
+            `<strong>week of ${fmt(d.d)}</strong>` +
+            (d.legoTotal === 0
+              ? '<div class="tt-n">no LEGO posts</div>'
+              : `<div class="tt-row"><span class="sw" style="background:${L_PRO}"></span>Pro-regime <b>${d.lego_pro_v2 || 0}</b></div>` +
+                `<div class="tt-row"><span class="sw" style="background:${L_ANTI}"></span>Anti-regime <b>${d.lego_anti_v2 || 0}</b></div>` +
+                `<div class="tt-row"><span class="sw" style="background:${L_NEITHER}"></span>Neither <b>${d.lego_neither_v2 || 0}</b></div>` +
+                `<div class="tt-n">${d.legoTotal} LEGO posts that week</div>`)
+          );
+      })
+      .on('mouseleave', () => { tip.style('opacity', 0); });
+  }
+
   /* Gallery of every post the LEGO classifier flagged. */
   function renderLegoGallery(feed) {
     const container = qs('#lego-gallery');
@@ -1268,8 +1531,8 @@
       ]);
       renderStanceTimeline(timeline);
       setupScrolly();
-      renderStanceWeekly(weekly, { lego: false, target: '#stance-chart' });
-      renderStanceWeekly(weekly, { lego: true,  target: '#lego-chart' });
+      renderStanceWeeklyBars(weekly, { target: '#stance-chart' });
+      renderLegoStanceBars(weekly, { target: '#lego-chart' });
       renderLegoGallery(lego);
     } catch (err) {
       console.error('classifier charts failed', err);

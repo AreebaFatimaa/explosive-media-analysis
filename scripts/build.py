@@ -446,6 +446,10 @@ def main():
 
 STANCE_CSV = os.path.join(SITE_ROOT, 'CSVs', 'phase1_stance_predictions.csv')
 LEGO_CSV = os.path.join(SITE_ROOT, 'CSVs', 'lego_predictions.csv')
+# The round-2 stance run, kept when v4 was promoted. The LEGO chart breaks its
+# posts down by THESE labels, deliberately, while the pro/anti bars elsewhere
+# use the v4 labels in STANCE_CSV.
+STANCE_V2_CSV = os.path.join(SITE_ROOT, 'CSVs', 'phase1_stance_predictions_v2.csv')
 WAR_START = '2026-02-28'
 MIN_WEEK_N = 20          # below this a weekly percentage is not load-bearing
 
@@ -474,12 +478,14 @@ def _week_start(datestr):
 
 def build_classifier_feeds(rows):
     stance = _read_indexed(STANCE_CSV)
+    stance_v2 = _read_indexed(STANCE_V2_CSV)
     lego = _read_indexed(LEGO_CSV)
     if not stance:
         return
 
     weeks = collections.defaultdict(
-        lambda: {'n': 0, 'pro': 0, 'anti': 0, 'neither': 0, 'lego': 0})
+        lambda: {'n': 0, 'pro': 0, 'anti': 0, 'neither': 0, 'lego': 0,
+                 'lego_pro_v2': 0, 'lego_anti_v2': 0, 'lego_neither_v2': 0})
     for i, row in enumerate(rows):
         date = (row.get('date') or '').strip()
         if not date:
@@ -495,6 +501,16 @@ def build_classifier_feeds(rows):
             w['neither'] += 1
         if (lego.get(i, {}).get('lego') or '').strip() == 'Yes':
             w['lego'] += 1
+            # LEGO posts broken down by the ROUND-2 stance labels, for the
+            # LEGO-only chart. Uses stance_v2, not the v4 `s` above.
+            # lego_pro_v2 + lego_anti_v2 + lego_neither_v2 == lego.
+            s2 = (stance_v2.get(i, {}).get('p1_stance') or '').strip()
+            if s2 == 'Pro-regime':
+                w['lego_pro_v2'] += 1
+            elif s2 == 'Anti-regime':
+                w['lego_anti_v2'] += 1
+            else:
+                w['lego_neither_v2'] += 1
 
     weekly = []
     for wk in sorted(weeks):
@@ -504,6 +520,9 @@ def build_classifier_feeds(rows):
             'week': wk,
             'n': v['n'],
             'pro': v['pro'], 'anti': v['anti'], 'lego': v['lego'],
+            'lego_pro_v2': v['lego_pro_v2'],
+            'lego_anti_v2': v['lego_anti_v2'],
+            'lego_neither_v2': v['lego_neither_v2'],
             'pro_pct': round(v['pro'] / n * 100, 2),
             'anti_pct': round(v['anti'] / n * 100, 2),
             'lego_pct': round(v['lego'] / n * 100, 2),

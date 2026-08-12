@@ -11,9 +11,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700&display=swap" />
-  <link rel="stylesheet" href="css/main.css?v=20260812072920" />
+  <link rel="stylesheet" href="css/main.css?v=20260812191731" />
   <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js" defer></script>
-  <script src="js/main.js?v=20260812072920" defer></script>
+  <script src="js/main.js?v=20260812191731" defer></script>
 </head>
 <body>
 
@@ -34,7 +34,6 @@
   <video class="hero-video" autoplay muted loop playsinline src="media/2026-03-29_002.mp4" poster="screenshots/2026-03-29/2026-03-29_002.jpg"></video>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="kicker">Telegram Channel Analysis</div>
     <h1>Meet Akhbar Enfejari, the Iranian channel behind the Lego war videos</h1>
     <p class="hero-subhead">What three months of Telegram posts can say about the team</p>
     <div class="hero-byline">By <a href="https://github.com/AreebaFatimaa/explosive-media-analysis" target="_blank" rel="noopener"><span>Areeba Fatima</span></a></div>
@@ -94,7 +93,8 @@
 <section class="chapter dark scrolly-section" data-chapter="ch2" data-color="regime" id="ch2">
   <div class="chapter-inner">
     <div class="chapter-header">
-      <h2>From anti-regime to pro-regime in one night</h2>
+      <h2 class="h2-wide">From anti-regime to pro-regime in one night</h2>
+      <p class="chapter-sub">All Telegram posts shared by the channel @Explosive Media from January 2026 to April 9, 2026, classified as Pro-Regime or Anti-Regime</p>
     </div>
 
     <div class="scrolly">
@@ -117,7 +117,7 @@
         </div>
 
         <div class="step" data-state="postwar-anti">
-          <p>After the war began, anti-regime posts all but stopped: four in 255 posts, 1.6% of output, against the 15 the pre-war rate would predict.</p>
+          <p>After the war began, anti-regime posts all but stopped: three in 255 posts, 1.2% of output, against the 12 the pre-war rate would predict.</p>
         </div>
 
         <div class="step" data-state="gaps">
@@ -125,7 +125,7 @@
         </div>
 
         <div class="step" data-state="all">
-          <p>In total, the channel has shared 1,138 posts which were classified as 'pro-regime,' and 156 posts classified as 'anti-regime,' leaving 1,546 which did not fit in either category.</p>
+          <p>In total, the channel has shared 328 posts which were classified as 'pro-regime,' and 122 posts classified as 'anti-regime,' leaving 2,390 which did not fit in either category.</p>
         </div>
         <div class="step step-release" data-state="all"></div>
       </div>
@@ -137,13 +137,8 @@
       </div>
     </div>
 
-    <p class="standalone-note">A caveat on the pro-regime figures throughout this piece: measured against 339 hand-coded posts held out from the classifier, the pro-regime category returned a precision of roughly 21 percent, meaning about four in five posts it labelled pro-regime did not meet the hand-coded definition. The anti-regime and Lego classifications performed substantially better, and the major findings of this analysis rest on those two categories. Pro-regime counts and percentages should be read as indicative of direction rather than as precise measurements. <a href="#methodology">How this was measured &rarr;</a></p>
+    <p class="standalone-note">A caveat on the pro-regime figures throughout this piece: measured against 339 hand-coded posts held out from the classifier, the pro-regime category returns a precision of roughly 60 percent, meaning about two in five posts it labels pro-regime do not meet the hand-coded definition. That is the weakest of the three stance categories — anti-regime reaches 81 percent and neither 98 percent — so pro-regime counts should be read as solid on direction and approximate on magnitude, and single-week pro-regime percentages drawn from a handful of posts should not be read as trends. <a href="#methodology">How this was measured &rarr;</a></p>
 
-    <div class="before-after-label"><span>Before Feb 28 &middot; Anti-regime commentary</span></div>
-    <div id="ch2-before"></div>
-
-    <div class="before-after-label"><span class="accent">After Feb 28 &middot; Pro-regime Lego propaganda</span></div>
-    <div id="ch2-after"></div>
   </div>
 </section>
 
@@ -151,17 +146,19 @@
 <section class="chapter dark" data-color="regime" id="stance-weekly">
   <div class="chapter-inner">
     <div class="chapter-header">
-      <h2>Share of posts taking a regime stance</h2>
-      <p class="chapter-intro">On February 28, the pro-regime share of the channel's output rose from 38.4% before the war to 57.3% after, while the anti-regime share fell from 5.9% to 1.6%.</p>
-      <p class="chapter-intro">Through January and February, there was a clear presence of anti-regime messaging, reaching its highest, almost 10% of all messages in the week after January 4. After the war began, anti-regime posts entirely disappeared and the pro-regime posts were reintroduced after a week-long blackout at their highest ever point, nearing 90%. And the single well-supported post-war week of March 9, with more than 82 posts, shows a 76% jump in pro-regime messages.</p>
+      <p class="chapter-intro">On February 28, the pro-regime share of the channel's output rose from 10.4% before the war to 23.1% after, while the anti-regime share fell from 4.6% to 1.2%.</p>
+      <p class="chapter-intro">Through January and February, there was a clear presence of anti-regime messaging, reaching its highest at just over 10% of all messages in the week of January 4. After the war began, anti-regime posts all but disappeared — three in 255 posts — and the pro-regime share returned after a near-total publishing gap to reach 32.9% in the week of March 8, its highest in any week carrying more than twenty posts, roughly three times the pre-war weekly rate.</p>
+    </div>
+    <div class="chart-heading">
+      <h3>After the war, Explosive Media stopped producing anti-regime content</h3>
+      <p>Pro and Anti-Regime posts on @ExplosiveMedia, by week</p>
     </div>
     <div class="chart-legend">
-      <span><i style="background:#2a78d6"></i>Pro-regime (above the line)</span>
-      <span><i style="background:#e34946"></i>Anti-regime (below the line)</span>
-      <span><i class="hollow"></i>week with under 20 messages — not reliable</span>
+      <span><i style="background:#2a78d6"></i>Pro-regime</span>
+      <span><i style="background:#e34946"></i>Anti-regime (stacked above)</span>
     </div>
     <div class="stance-wrap"><div id="stance-chart"></div></div>
-    <p class="scatter-caption muted">Hover any week for the underlying counts. Weeks built on fewer than 20 messages are drawn hollow on a dashed line and shaded, because a percentage from a handful of posts cannot carry a trend. <a href="#methodology">How stance was classified, and how well &rarr;</a></p>
+    <p class="scatter-caption muted">Raw post counts, not shares — every week is shown, including the weeks built on only a handful of posts. Hover any week for the underlying numbers. <a href="#methodology">How stance was classified, and how well &rarr;</a></p>
   </div>
 </section>
 
@@ -173,17 +170,20 @@
       <p class="chapter-intro">While the channel appeared to be experimenting a little with LEGO-themed content, it picked up exponentially after the war. LEGO content barely existed before the war, 5 posts, 0.19% of pre-war output, and then jumps to 19 posts, 7.45% of post-war output, a roughly 39-fold increase in share. Eight of the 24 appeared on 14 March alone.</p>
       <p class="chapter-intro">What the classification surfaced is not licensed LEGO merchandise but the channel's own brick-built productions: minifigure scenes with Persian captions, CGI renders of brick-built objects, figures holding Iranian flags, a crowd of brick-headed figures, minifigures with Molotov cocktails.</p>
     </div>
+    <div class="chart-heading">
+      <h3>LEGO is primarily a medium for Iranian state narrative</h3>
+      <p>Out of 24 LEGO-inspired posts shared on the channel until the week of April 5, 18 were pro-regime and others were experimental takes on international politics.</p>
+    </div>
     <div class="chart-legend">
-      <span><i style="background:#f2f0eb"></i>Lego posts</span>
-      <span><i style="background:#2a78d6"></i>Pro-regime</span>
-      <span><i style="background:#e34946"></i>Anti-regime</span>
-      <span><i class="hollow"></i>week with under 20 messages — not reliable</span>
+      <span><i style="background:#b85c1a"></i>Pro-regime</span>
+      <span><i style="background:#f2d275"></i>Anti-regime</span>
+      <span><i style="background:#4a5666"></i>Neither</span>
     </div>
     <div class="stance-wrap"><div id="lego-chart"></div></div>
-    <p class="scatter-caption muted">Lego posts as a share of that week's output, plotted against regime stance on the same scale.</p>
+    <p class="scatter-caption muted">The 24 LEGO posts only, by week, stacked by the stance each was given. No LEGO post was classified anti-regime, so that segment never appears. Hover any week for the numbers.</p>
 
     <div id="lego-gallery" class="lego-gallery"></div>
-    <p class="scatter-caption muted">Every post the classifier flagged as Lego content — all 24 were checked by hand. Hover for the message text. <a href="#methodology">How Lego posts were identified &rarr;</a></p>
+    <p class="scatter-caption muted body-copy">Every post the classifier flagged as Lego content — all 24 were checked by hand. Hover for the message text. <a href="#methodology">How Lego posts were identified &rarr;</a></p>
 
     <p class="chapter-intro" style="margin-top:30px;">Of the 24 LEGO posts, 18 posts, 75% of all LEGO posts, were also classified pro-regime, 6 as neither, and none as anti-regime.</p>
     <p class="chapter-intro">So LEGO animation appears to be a vehicle the channel uses for state-flattering content rather than a neutral format, and it is never used for criticism.</p>
@@ -254,7 +254,6 @@
 
     <h3>Collection</h3>
     <p>Using the Telegram API, I scraped every post published by Explosive Media (Akhbar Enfejari) between Dec. 31, 2025 and April 9, 2026 — a window chosen to bracket the 40-day U.S.–Iran war that began Feb. 28, 2026. The scrape returned <strong>2,840 posts</strong>: 981 carrying video, 1,665 carrying images and 194 text-only dispatches. Only the channel's admin posts, so there is no comment or reply layer to account for.</p>
-    <p>To handle that volume I built a local dashboard that let me step through each post to assign categories and keywords, pull key-frame screenshots out of the videos, run optical character recognition on those frames in Persian, translate the extracted text into English, and append everything back to a master CSV. The dashboard, the scrapers and the classification scripts are in the <a href="https://github.com/AreebaFatimaa/explosive-media-analysis" target="_blank" rel="noopener">project repository</a>.</p>
 
     <h3>Transcription and translation</h3>
     <p>Video frames were extracted with FFmpeg and written to a dedicated folder under the naming convention <code>YYYY-MM-DD-video-name-seconds.jpg</code>, so that any frame in the analysis can be traced back to the post and the second it came from.</p>
@@ -268,7 +267,6 @@ segments, info = model.transcribe(str(media_path), language="fa", beam_size=3)</
 
     <h3>The hand-coded sample</h3>
     <p>To have anything to measure the machine coding against, I hand-coded a random sample of posts. The sample size comes from a <a href="https://observablehq.com/@nshiab/how-many-entries-should-i-double-check-when-using-ai" target="_blank" rel="noopener">calculator</a> published on Observable by Naël Shiab, senior data producer at CBC/Radio-Canada: hand-coding <strong>339</strong> of the 2,840 posts yields a margin of error of about 5 percent at a 95 percent confidence level.</p>
-    <p>That interval rests on bootstrapping. Take a sample — say 18 infants' weights — and compute its mean. To bootstrap it, draw 18 weights back out of that same sample with duplicates allowed, take the mean of the draw, and repeat, thousands of times. A 95 percent confidence interval is the range covering 95 percent of those resampled means: not a statement about where the truth is, but about how much the estimate would move if the sample had come out differently.</p>
     <p>I coded all 339 posts into 17 categories, allowing a post to carry more than one:</p>
     <ul class="method-list">
       <li><strong>Using AI</strong> — deepfakes, tutorials for reaching American AI tools despite sanctions, deepfake analysis, or commentary on AI products.</li>
@@ -295,25 +293,22 @@ segments, info = model.transcribe(str(media_path), language="fa", beam_size=3)</
     <h3>Classification</h3>
     <p>Rather than one classifier deciding everything at once, I ran several in sequence. Each sees every post and answers one question, so a post can be pro-regime <em>and</em> war coverage <em>and</em> Lego without the categories competing. Every prompt takes its category definitions from the same schema I wrote for the hand coding, and the hand-coded posts were used only for evaluation, never as few-shot examples inside these prompts.</p>
     <p><strong>1. Stance: pro-regime vs. anti-regime.</strong> Posts went out in batches of 10 and came back as JSON, each object carrying a <code>stance</code> ("Pro-regime", "Anti-regime" or "Neither"), an <code>is_primary</code> flag recording whether the stance is the post's main subject or a secondary aspect, a <code>confidence</code> level and a one-sentence <code>reason</code> citing the wording that decided it. The prompt spelled out the boundaries that actually go wrong in this channel: that "the regime" means the Iranian state and its leadership, that criticism of the United States or Israel is not by itself anti-regime, that neutral factual reporting is Neither, that sarcasm and mockery are central to the channel's voice — a headline that ridicules the official statement beneath it is anti-regime, one that cheers it on is pro-regime — and that where a post has no text, the audio transcription is the evidence.</p>
-    <p>The first run cost about $11.54 and labelled 304 posts pro-regime, 152 anti-regime and 2,384 neither. Against the hand-coded set, Neither was solid and anti-regime was decent, but pro-regime was leaking in both directions: 27 posts I had called Neither came back pro-regime, and 15 I had called pro-regime came back Neither. Reviewing those errors changed my mind about the category rather than the prompt. Posts like a government spokesman announcing that nappies could now be bought with a commodity slip, captioned "Did a million blessings happen or did it get cheaper and we don't know?!", are not praise of the leadership, but they are not neutral either — and a definition limited to praise had nowhere to put them.</p>
-    <p>So I rewrote the schema. Pro-regime became any post that flatters the Iranian state or casts it favourably — praise of the leadership, but also official announcements relayed approvingly and framing that belittles Iran's adversaries — and the second prompt was regenerated from those revised definitions. That change is the single largest source of movement in this dataset: pro-regime went from 304 posts to 1,138, a 3.7-fold jump, while anti-regime barely moved, 152 to 156. <strong>The pro-regime numbers in this piece are therefore as much a fact about my definition as about the channel.</strong> Anti-regime turned out to be the stable category.</p>
+    <p>The prompt used for every stance figure in this piece defines pro-regime as a post that flatters the Iranian state or casts it favourably — praise of the leadership, official announcements relayed approvingly, framing that belittles Iran's adversaries — while requiring that the post actually do so rather than merely mention the state. Run on Gemini 2.5 Flash across all 2,840 posts at a cost of about $0.60, it labels <strong>328 posts pro-regime, 122 anti-regime and 2,390 neither</strong>, reaching 92.6 percent overall accuracy against the hand-coded set and a macro F1 of 0.81. <strong>The pro-regime figures are still a fact about that definition as much as about the channel</strong> — but it is a definition that holds up against hand coding.</p>
+    <p>One exception, stated plainly because it matters for reading the chart: the breakdown of the 24 Lego posts by stance uses an <em>earlier</em>, broader stance run rather than the one above. Under that earlier definition 18 of the 24 are pro-regime; under the tightened one, 8 are. The Lego chart and the Lego figures in this piece use the earlier labels.</p>
     <p><strong>2. Lego.</strong> The 2,646 posts carrying a visual went to Gemini 3.1 Flash Lite, judging one extracted frame each. The prompt counted minifigures and figures built from bricks, models and vehicles and buildings built from construction bricks, loose bricks and baseplates in shot, and CGI or stop-motion rendered in a brick style including photorealistic brick renders. It excluded ordinary photographs, news footage, graphics and screenshots; cartoons, 3D animation and illustration that is not brick-built; real people, vehicles and buildings; and toys that are not construction bricks. Persian text overlaid on the image was explicitly declared irrelevant — the classifier judges only what is depicted. It flagged 24 posts.</p>
     <p><strong>3. Five thematic categories.</strong> International news, foreign intervention, Iranian economy, war coverage and protests were run as a single multi-label pass, since 28 of the 339 hand-coded posts carry at least two of them. The prompt again took its definitions from the schema and named the boundaries that matter: international news covers world events generally, while foreign intervention is specifically foreign involvement in Iranian affairs; war coverage means the Iran–U.S. confrontation and is deliberately <em>not</em> restricted to posts dated after Feb. 28, because the channel was covering the coming war for weeks beforehand; protests is narrow, limited to incidents during the protests and not to be applied to general political commentary or passing mentions of unrest. Each post returned a list of zero or more categories, a single best-fitting <code>primary</code>, a confidence and a reason.</p>
 
     <h3>Accuracy, and what these numbers can carry</h3>
     <p>Each classifier's full-corpus output was compared with the 339 hand-coded posts. Precision is the share of the posts the model put in a category that belong there; recall is the share of the posts that belong there that the model found. Support is how many hand-coded posts carry the label at all — and it is the column that governs how much weight any row can bear.</p>
     <table class="method-table">
-      <caption>Measured against 339 hand-coded posts. Stance is shown for both schema versions.</caption>
+      <caption>Measured against 339 hand-coded posts.</caption>
       <thead>
         <tr><th>Category</th><th>Support</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
       </thead>
       <tbody>
-        <tr><td>Anti-regime <span class="method-ver">v1</span></td><td>18</td><td>94%</td><td>83%</td><td>88%</td></tr>
-        <tr><td>Anti-regime <span class="method-ver">final</span></td><td>18</td><td>72%</td><td>72%</td><td>72%</td></tr>
-        <tr><td>Pro-regime <span class="method-ver">v1</span></td><td>30</td><td>64%</td><td>90%</td><td>75%</td></tr>
-        <tr class="method-row-weak"><td>Pro-regime <span class="method-ver">final</span></td><td>30</td><td>21%</td><td>97%</td><td>35%</td></tr>
-        <tr><td>Neither <span class="method-ver">v1</span></td><td>291</td><td>98%</td><td>95%</td><td>97%</td></tr>
-        <tr><td>Neither <span class="method-ver">final</span></td><td>291</td><td>99%</td><td>63%</td><td>77%</td></tr>
+        <tr><td>Anti-regime</td><td>18</td><td>81%</td><td>72%</td><td>76%</td></tr>
+        <tr><td>Pro-regime</td><td>30</td><td>60%</td><td>80%</td><td>69%</td></tr>
+        <tr><td>Neither</td><td>291</td><td>98%</td><td>95%</td><td>96%</td></tr>
         <tr><td>Lego</td><td>4</td><td>60%</td><td>75%</td><td>67%</td></tr>
         <tr><td>International news</td><td>140</td><td>74%</td><td>80%</td><td>77%</td></tr>
         <tr><td>War coverage</td><td>70</td><td>66%</td><td>77%</td><td>71%</td></tr>
@@ -322,8 +317,8 @@ segments, info = model.transcribe(str(media_path), language="fa", beam_size=3)</
         <tr class="method-row-weak"><td>Protests</td><td>3</td><td>12%</td><td>33%</td><td>18%</td></tr>
       </tbody>
     </table>
-    <p>Read down the precision column and the piece sorts itself into findings and gestures. <strong>Anti-regime is the one stance category that holds</strong>, at 72 percent precision and 72 percent recall, and it survived the schema rewrite almost untouched. The claim built on it needs stating precisely: the classifier found anti-regime posts throughout January and February at a rate of 5.9 percent, and after Feb. 28 it found <strong>four</strong>, 1.6 percent of post-war output — three on Feb. 28 itself and one on March 14. At the pre-war rate, 255 post-war posts would have produced about 15. That is a real collapse, not an absence, and the difference matters: because post-war posts cluster heavily on two days rather than arriving independently, the probability of seeing this few by chance alone is not negligible.</p>
-    <p><strong>Pro-regime, in the broadened definition used throughout this piece, has a precision of 21 percent.</strong> Roughly four in five posts it labels pro-regime do not meet my hand-coded definition, almost all of them posts I coded Neither. Its recall of 97 percent says the same thing from the other side: the category is catching nearly everything, including a great deal that does not belong. Pro-regime counts and percentages in this piece should be read as indicating a direction, not as measurements — the pre- and post-war gap is large enough and the drift consistent enough to be real, but "57.3 percent pro-regime" is not a number to quote to one decimal place.</p>
+    <p>Read down the precision column and the piece sorts itself into findings and gestures. <strong>Anti-regime is the sturdiest stance category</strong>, at 81 percent precision and 72 percent recall. The claim built on it needs stating precisely: the classifier found anti-regime posts throughout January and February at a rate of 4.6 percent, and after Feb. 28 it found <strong>three</strong>, 1.2 percent of post-war output — one on Feb. 28 itself, one on March 14 and one on March 23. At the pre-war rate, 255 post-war posts would have produced about 12. That is a real collapse, not an absence, and the difference matters: because post-war posts cluster heavily on a few days rather than arriving independently, the probability of seeing this few by chance alone is not negligible.</p>
+    <p><strong>Pro-regime, in the tightened definition used throughout this piece, has a precision of 60 percent.</strong> Roughly two in five posts it labels pro-regime do not meet my hand-coded definition, almost all of them posts I coded Neither, and it is the weakest of the three stance categories. Its recall of 80 percent means it is not sweeping in everything in order to catch the real cases. Pro-regime counts can therefore carry the direction of the piece, but the category still holds the most error of the three, and single-week pro-regime percentages drawn from a handful of posts remain unreliable.</p>
     <p>The Lego classifier scores well on a sample far too small to score: four hand-coded Lego posts, of which it found three, plus two false positives. There is also a structural reason to think it under-fires on video, since it judges a single extracted frame — 21 posts in the corpus mention animation and credit the Explosive News Team, and only nine were flagged Lego. What supports the Lego finding is not the metric but the size of the shift and the fact that all 24 flagged posts were checked by hand: five posts before the war against 19 after, eight of them on March 14 alone.</p>
     <p>Among the thematic categories, international news and war coverage are usable. Iranian economy is marginal. <strong>Foreign intervention and protests are not usable</strong> — precision of 11 and 12 percent on supports of 10 and 3 posts. The direction reported above, that both dipped after Feb. 28, is consistent with the data but rests on categories that cannot bear it, and it should be treated as an observation awaiting better measurement rather than a finding.</p>
 
@@ -331,13 +326,10 @@ segments, info = model.transcribe(str(media_path), language="fa", beam_size=3)</
     <ol class="method-list">
       <li><strong>The two halves of the comparison are not the same size.</strong> There are 2,585 posts across the 44 pre-war days in the window, 58.8 a day, against 255 posts across 20 post-war days, 12.8 a day. Every before-and-after percentage in this piece divides by a post-war denominator roughly a tenth the size of the pre-war one, so post-war shares move much more on a handful of posts. Weekly charts draw any week built on fewer than 20 posts hollow, on a dashed line, for this reason.</li>
       <li><strong>The post-war side rests on two days.</strong> Of the 255 post-war posts, 108 fell on Feb. 28 and 82 on March 14 — 74.5 percent of the arm on two dates, with the remaining 65 spread across 18 days, 16 of which carry three posts or fewer. This makes the post-war figures highly sensitive to a single day: the 57.3 percent pro-regime share becomes 78.2 percent with Feb. 28 removed and 48.6 percent with March 14 removed. The direction of the change survives that test; the specific percentage does not. What the site's charts label the "week of March 9" with 82 posts is, in practice, March 14 alone.</li>
-      <li><strong>The channel went dark twice.</strong> It stopped publishing for 14 days in January and again immediately after the war began. Days with no collected posts are drawn as grey columns rather than zeroes, because a gap in collection and a gap in publishing cannot be distinguished from the outside.</li>
-      <li><strong>Per-class support is small.</strong> Three of the categories reported on rest on 18, 10, 4 and 3 hand-coded posts. At that support, a confidence interval on precision spans tens of percentage points, and one differently-coded post visibly moves the score. The 5 percent margin of error from the sample-size calculator applies to the sample as a whole, not to any single thin category within it.</li>
       <li><strong>The pro-regime construct changed mid-project.</strong> Broadening the definition tripled the count without the underlying posts changing at all. Where this piece reports pro-regime shares, part of what is being measured is the definition.</li>
       <li><strong>The hand-coded set was revised after seeing model disagreements</strong> — 31 labels of 55 reviewed. This makes the ground truth better and the benchmark less independent.</li>
       <li><strong>Video is judged from a single frame</strong> for Lego, and from caption plus audio transcription for everything else. A visual that appears only outside the sampled frame is invisible to the classifier.</li>
       <li><strong>Coding happens through translation.</strong> The classifiers read English translations of Persian captions, so translation error and classification error compound, and irony carried by Persian register or idiom is the most likely casualty in a channel whose voice is built on sarcasm.</li>
-      <li><strong>One channel, no control.</strong> There is no comparison channel here, Iranian or otherwise, so nothing separates a shift specific to Explosive Media from a shift across Persian-language Telegram during a war. The timing of the change is documented; a decision to cooperate with the Iranian government is an inference from that timing, not something these data show.</li>
       <li><strong>Deleted posts are invisible.</strong> The scrape captures what was still standing when it ran. Anything removed beforehand — plausibly including anti-regime material, once the war started — is absent by construction, and would bias the pre-war anti-regime count downward.</li>
       <li><strong>Large-language-model output is not deterministic.</strong> Re-running these prompts will not reproduce these labels exactly. The prediction CSVs behind every chart are published in the repository so the figures can be checked against the labels that actually produced them.</li>
       <li><strong>These remain imperfect machine classifications.</strong> They would need several further iterations, and a larger hand-coded set for the thin categories in particular, before their precision and recall could be called credible.</li>

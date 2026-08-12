@@ -4,15 +4,15 @@
   "images": 1665,
   "text_only": 194,
   "themes": {
-    "Pro-regime": 1138,
     "War coverage": 591,
     "International news": 412,
+    "Pro-regime": 328,
     "Sports": 320,
     "Weather and landscape": 249,
     "Foreign intervention": 224,
     "Pop culture": 184,
     "Iranian economy": 183,
-    "Anti-regime": 156,
+    "Anti-regime": 122,
     "Gaza Genocide": 99,
     "Protests": 87,
     "Using AI": 86,
@@ -103,20 +103,20 @@
     },
     "ch2_regime": {
       "label": "Anti / pro‑regime posts",
-      "count": 1294,
+      "count": 450,
       "subitems": [
         {
           "label": "Anti‑regime",
-          "count": 156,
-          "percent": 5.49
+          "count": 122,
+          "percent": 4.3
         },
         {
           "label": "Pro‑regime",
-          "count": 1138,
-          "percent": 40.07
+          "count": 328,
+          "percent": 11.55
         }
       ],
-      "percent": 45.56
+      "percent": 15.85
     },
     "ch3_popculture": {
       "label": "Pop culture posts",

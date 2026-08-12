@@ -1681,3 +1681,69 @@ svg g[font-size="10"], svg g[font-size="11"] { font-size: 12px; }
 @media (max-width: 1560px) {
   .scrolly-section .chapter-inner { max-width: calc(100vw - 60px); }
 }
+
+/* Left-aligned head + subhead sitting directly above a chart. The section
+   itself is centred, so this block opts out and aligns with the chart's left
+   edge instead, which is where the reader's eye starts on the bars. */
+.chart-heading { text-align: left; margin: 34px 0 10px; }
+/* Three distinct levels, so a headline never reads as body copy:
+   h2/h3 = headline, .chart-sub = subhead, .chart-body = narrative paragraphs. */
+.chart-heading h2, .chart-heading h3 { margin: 0 0 8px; line-height: 1.2;
+  font-weight: 700; color: #f2f0eb; text-align: left; }
+.chart-heading h2 { font-size: 34px; max-width: 30ch; }
+.chart-heading h3 { font-size: 26px; }
+.chart-heading .chart-sub { margin: 0 0 14px; max-width: 62ch; font-size: 17px;
+  line-height: 1.45; color: rgba(255,255,255,.78); }
+.chart-heading .chart-body { margin: 0 0 10px; max-width: 68ch; font-size: 15.5px;
+  line-height: 1.6; color: rgba(255,255,255,.6); }
+.chart-heading .chart-body:last-child { margin-bottom: 0; }
+/* the LEGO block has a bare <p> as its subhead */
+.chart-heading > p:not([class]) { margin: 0; max-width: 62ch; font-size: 15.5px;
+  line-height: 1.55; color: rgba(255,255,255,.62); }
+@media (max-width: 640px) {
+  .chart-heading h2 { font-size: 24px; }
+  .chart-heading h3 { font-size: 21px; }
+  .chart-heading .chart-sub { font-size: 15.5px; }
+  .chart-heading .chart-body { font-size: 14.5px; }
+}
+
+/* ---------------------------------------------------------------------------
+   Typography normalisation. Several narrative paragraphs had drifted onto
+   their own sizes (15px, 21px, 12px) and their own alignment, so they read as
+   captions or standfirsts rather than as body copy. These pull them all onto
+   the same 17px/1.7 justified scale as .intro-text p.
+   --------------------------------------------------------------------------- */
+.intro-text p,
+.intro-text p.muted,
+.chapter-intro,
+.standalone-note,
+.body-copy {
+  font-size: 17px;
+  line-height: 1.7;
+  text-align: justify;
+}
+.chapter-intro { max-width: 760px; margin-left: auto; margin-right: auto; }
+.standalone-note { max-width: 760px; margin-left: auto; margin-right: auto; }
+.body-copy { max-width: 760px; margin-left: auto; margin-right: auto; }
+
+/* Byline: 13px -> 39px, three times the original. */
+.hero-byline { font-size: 39px; letter-spacing: 0.02em; line-height: 1.2; }
+
+/* Let this headline use the full column instead of breaking before the last
+   two words; text-wrap: balance evens the lines out if it does wrap. */
+.h2-wide { max-width: none !important; text-wrap: balance; }
+
+/* Subheadline sitting under a chapter headline. */
+.chapter-sub {
+  max-width: 760px; margin: -6px auto 0; text-align: center;
+  font-size: 18px; line-height: 1.5; color: rgba(255,255,255,.72);
+}
+
+/* Methodology: no left rule on the opening paragraph, white section headline. */
+.method-standfirst { border-left: none !important; padding-left: 0 !important; }
+.methodology-inner h2 { color: #fff; }
+
+@media (max-width: 640px) {
+  .hero-byline { font-size: 26px; }
+  .chapter-sub { font-size: 16px; }
+}
