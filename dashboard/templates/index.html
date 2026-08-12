@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explosive Media Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <header>
+        <div class="header-inner">
+            <h1>Explosive Media <span class="accent">Dashboard</span></h1>
+            <p class="subtitle">@ExplosiveMedia / @akhbarenfejari &mdash; {{ total }} messages</p>
+        </div>
+    </header>
+
+    <nav class="section-tabs">
+        {% for key, sec in sections.items() %}
+        <a href="/?section={{ key }}"
+           class="section-tab {% if key == section %}active{% endif %}"
+           style="{% if key == section %}border-color: {{ sec.color }}; color: {{ sec.color }};{% endif %}">
+            {{ sec.label }}
+        </a>
+        {% endfor %}
+    </nav>
+
+    <div class="controls">
+        <form method="get" action="/" class="filter-form">
+            <input type="hidden" name="section" value="{{ section }}">
+            <div class="filter-group">
+                <label>Date</label>
+                <select name="date_filter" onchange="this.form.submit()">
+                    <option value="">All dates</option>
+                    {% for d in dates %}
+                    <option value="{{ d }}" {% if d == date_filter %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Media</label>
+                <select name="media_only" onchange="this.form.submit()">
+                    <option value="">All</option>
+                    <option value="Y" {% if media_only == 'Y' %}selected{% endif %}>Media only</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Transcription QA</label>
+                <select name="error_filter" onchange="this.form.submit()">
+                    <option value="">No filter</option>
+                    <option value="stance_review" {% if error_filter == 'stance_review' %}selected{% endif %}>⚖️ Phase 1 disagreements (pro/anti)</option>
+                    <option value="stance_flips" {% if error_filter == 'stance_flips' %}selected{% endif %}>🔥 Polarity flips (pro↔anti)</option>
+                    <option value="unlabelled" {% if error_filter == 'unlabelled' %}selected{% endif %}>⭐ Unlabelled (no theme)</option>
+                    <option value="empty_rows" {% if error_filter == 'empty_rows' %}selected{% endif %}>Empty rows (no text, no media)</option>
+                    <option value="v2_errors" {% if error_filter == 'v2_errors' %}selected{% endif %}>V2 Errors (7)</option>
+                    <option value="v2_repetitive" {% if error_filter == 'v2_repetitive' %}selected{% endif %}>Repetitive Hallucinations</option>
+                    <option value="translation_failures" {% if error_filter == 'translation_failures' %}selected{% endif %}>Translation Failures</option>
+                    <option value="non_weather_repetitive" {% if error_filter == 'non_weather_repetitive' %}selected{% endif %}>Non-Weather Repetitive</option>
+                    <option value="sports_clips" {% if error_filter == 'sports_clips' %}selected{% endif %}>Sports Clips</option>
+                    <option value="weather_clips" {% if error_filter == 'weather_clips' %}selected{% endif %}>Weather Clips (17)</option>
+                    <option value="needs_review" {% if error_filter == 'needs_review' %}selected{% endif %}>Needs Manual Review</option>
+                    <option value="all_issues" {% if error_filter == 'all_issues' %}selected{% endif %}>All Issues</option>
+                </select>
+            </div>
+            <div class="filter-group search-group">
+                <label>Search</label>
+                <input type="text" name="search" value="{{ search }}" placeholder="Search text or keywords...">
+                <button type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-id">#</th>
+                    <th class="col-date">Date</th>
+                    <th class="col-time">Time (EST)</th>
+                    <th class="col-media">Media</th>
+                    <th class="col-persian">Persian</th>
+                    <th class="col-english">English</th>
+                    <th class="col-has-media">Has Media</th>
+                    <th class="col-keywords">Keywords</th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr class="{% if row.has_media == 'Y' %}has-media{% endif %}">
+                    <td class="col-id">{{ row._row_id }}</td>
+                    <td class="col-date">{{ row.date }}</td>
+                    <td class="col-time">{{ row.time_est }}</td>
+                    <td class="col-media">
+                        {% if row.media_filename %}
+                            {% if row.media_filename.endswith('.mp4') or row.media_filename.endswith('.mov') %}
+                                <video src="/media/{{ row.media_filename }}" class="thumb-video" muted preload="metadata"></video>
+                            {% else %}
+                                <img src="/media/{{ row.media_filename }}" class="thumb-img" loading="lazy">
+                            {% endif %}
+                        {% else %}
+                            <span class="no-media">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="col-persian" dir="rtl" lang="fa">{{ row.message_text_persian[:120] }}{% if row.message_text_persian|length > 120 %}...{% endif %}</td>
+                    <td class="col-english">{{ row.message_text_english[:120] }}{% if row.message_text_english|length > 120 %}...{% endif %}</td>
+                    <td class="col-has-media"><span class="badge badge-{{ 'yes' if row.has_media == 'Y' else 'no' }}">{{ row.has_media }}</span></td>
+                    <td class="col-keywords">{{ row.get('keywords', '') }}</td>
+                    <td class="col-actions">
+                        <a href="/row/{{ row._row_id }}?section={{ section }}&date_filter={{ date_filter }}&media_only={{ media_only }}&search={{ search }}&error_filter={{ error_filter }}" class="btn btn-view">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        {% if page > 1 %}
+        <a href="?page={{ page - 1 }}&section={{ section }}&date_filter={{ date_filter }}&media_only={{ media_only }}&search={{ search }}&error_filter={{ error_filter }}" class="btn">&laquo; Prev</a>
+        {% endif %}
+        <span class="page-info">Page {{ page }} of {{ total_pages }}</span>
+        {% if page < total_pages %}
+        <a href="?page={{ page + 1 }}&section={{ section }}&date_filter={{ date_filter }}&media_only={{ media_only }}&search={{ search }}&error_filter={{ error_filter }}" class="btn">Next &raquo;</a>
+        {% endif %}
+    </div>
+</body>
+</html>

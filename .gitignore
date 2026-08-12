@@ -20,3 +20,18 @@ transcription-scripts/retranscribe_feb27_chunks/
 
 # CSVs/scripts/transcription-scripts source files ARE committed
 # (build.py + the classification CSV are needed to rebuild data/)
+
+# Credentials and session state — never commit
+.env
+.env.*
+*.session
+*.session-journal
+
+# Raw LLM response caches (regenerable, ~14MB)
+cache/
+cache_lego/
+
+# Backups and duplicated corpora
+*.bak
+notebooks/explosive_media_messages.csv
+notebooks/golden_dataset_extra.csv

@@ -77,31 +77,15 @@
     const mediaBox = el('div', { className: 'post-media' + (landscape ? ' landscape' : '') });
 
     if (post.type === 'video') {
-      const poster = post.screenshot || null;
-      const video = el('video', {
-        src: mediaURL(post.filename),
-        poster: poster || '',
-        muted: 'muted',
-        loop: 'loop',
-        playsinline: 'playsinline',
-        preload: 'none',
-        'data-src': mediaURL(post.filename),
+      // Video posts are shown as their extracted key frame — only the Lego
+      // carousel at the top of the page plays video.
+      const img = el('img', {
+        'data-src': post.screenshot || posterURL(post.filename) || '',
+        alt: post.text_en ? post.text_en.slice(0, 80) : 'Post key frame',
+        loading: 'lazy',
       });
-      video.muted = true;
-      mediaBox.appendChild(video);
+      mediaBox.appendChild(img);
       mediaBox.appendChild(el('div', { className: 'video-indicator' }, 'Video'));
-      const soundBtn = el('button', {
-        className: 'post-sound',
-        'aria-label': 'Toggle sound',
-        title: 'Toggle sound',
-        onclick: (e) => {
-          e.stopPropagation();
-          video.muted = !video.muted;
-          soundBtn.textContent = video.muted ? '🔇' : '🔊';
-          if (!video.muted && video.paused) video.play().catch(()=>{});
-        }
-      }, '🔇');
-      mediaBox.appendChild(soundBtn);
     } else {
       const img = el('img', {
         'data-src': mediaURL(post.filename),
@@ -286,6 +270,360 @@
   /* ============================================================
      TIMELINE CHART (D3)
      ============================================================ */
+  /* ------------------------------------------------------------------ *
+   * Interactive key-frame timeline: one tile per pro/anti post, stacked by
+   * the day it was posted. Pro-regime above the centre line, anti-regime
+   * below — the same layout as the notebook chart, but every tile is
+   * hoverable. Days with no collected posts are shaded so a gap in the
+   * data never reads as silence from the channel.
+   * ------------------------------------------------------------------ */
+  function renderStanceTimeline(feed) {
+    const chart = qs('#stance-timeline');
+    if (!chart || !feed || !feed.posts) return;
+    chart.innerHTML = '';
+
+    const PRO = '#2a78d6', ANTI = '#e34946';
+    const parse = d3.timeParse('%Y-%m-%d');
+    const posts = feed.posts.map(p => ({ ...p, _d: parse(p.date) }));
+
+    const width = chart.clientWidth || 960;
+    const tile = width > 900 ? 13 : 9;
+    const gap = 1;
+    const margin = { top: 26, right: 14, bottom: 40, left: 40 };
+
+    // Tallest stack on either side sets the height.
+    // One day peaks at 62 posts on a side; drawing all of them makes the chart
+    // taller than a screen. Cap the stack and mark the overflow instead.
+    const MAX_STACK = 20;
+    const perDaySide = d3.rollup(posts, v => v.length, p => p.date + '|' + p.side);
+    const maxStack = Math.min(MAX_STACK, Math.max(4, d3.max(perDaySide.values()) || 4));
+    const half = maxStack * (tile + gap) + 22;
+    const height = half * 2 + margin.top + margin.bottom;
+    const mid = margin.top + half;
+
+    const start = parse('2025-12-31'), end = parse('2026-04-09');
+    const x = d3.scaleTime()
+      .domain([start, d3.timeDay.offset(end, 1)])
+      .range([margin.left, width - margin.right]);
+
+    const svg = d3.select(chart).append('svg')
+      .attr('class', 'stance-timeline-svg')
+      .attr('viewBox', `0 0 ${width} ${height}`);
+
+    // Shade days with no collected messages.
+    const have = new Set(feed.dates_with_data || []);
+    const dayW = Math.max(1.5, (x(d3.timeDay.offset(start, 1)) - x(start)));
+    d3.timeDay.range(start, d3.timeDay.offset(end, 1)).forEach(d => {
+      const key = d3.timeFormat('%Y-%m-%d')(d);
+      if (!have.has(key)) {
+        svg.append('rect')
+          .attr('x', x(d)).attr('y', margin.top)
+          .attr('width', dayW).attr('height', height - margin.top - margin.bottom)
+          .attr('fill', 'rgba(255,255,255,0.06)');
+      }
+    });
+
+    // Stack each day's posts outward from the centre line.
+    const stacked = [], overflow = [];
+    d3.groups(posts, p => p.date + '|' + p.side).forEach(([, group]) => {
+      group.forEach((p, i) => {
+        if (i >= MAX_STACK) return;
+        const off = 10 + i * (tile + gap);
+        p._x = x(p._d) - tile / 2;
+        p._y = p.side === 'pro' ? mid - off - tile : mid + off;
+        stacked.push(p);
+      });
+      if (group.length > MAX_STACK) {
+        const p0 = group[0], extra = group.length - MAX_STACK;
+        const off = 10 + MAX_STACK * (tile + gap);
+        overflow.push({
+          x: x(p0._d), side: p0.side, n: extra,
+          y: p0.side === 'pro' ? mid - off - 2 : mid + off + tile,
+        });
+      }
+    });
+
+    const tooltip = d3.select(chart).append('div').attr('class', 'timeline-tooltip');
+
+    const g = svg.append('g');
+    const tileNodes = [];
+    stacked.forEach(p => {
+      const col = p.side === 'pro' ? PRO : ANTI;
+      const node = g.append('g').attr('class', 'tl-tile')
+        .attr('transform', `translate(${p._x},${p._y})`);
+      if (p.thumb) {
+        node.append('image')
+          .attr('href', p.thumb).attr('width', tile).attr('height', tile)
+          .attr('preserveAspectRatio', 'xMidYMid slice');
+        node.append('rect')
+          .attr('width', tile).attr('height', tile)
+          .attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1);
+      } else {
+        // Text-only post: a solid tile, so the day's volume stays truthful.
+        node.append('rect')
+          .attr('width', tile).attr('height', tile)
+          .attr('fill', col).attr('opacity', 0.55);
+      }
+      tileNodes.push({ node, p });
+      node.on('mouseenter', function (event) {
+        d3.select(this).select('rect').attr('stroke-width', 2.5);
+        const side = p.side === 'pro' ? 'Pro-regime' : 'Anti-regime';
+        tooltip.classed('visible', true).html(
+          `<div class="tt-head" style="color:${col}">${side}` +
+          `<span class="tt-date">${p.date}${p.is_video ? ' · video' : ''}</span></div>` +
+          (p.thumb ? `<img src="${p.thumb}" alt="" />` : '') +
+          `<div class="tt-text">${(p.text || '(no caption)').replace(/</g, '&lt;')}</div>` +
+          (p.why ? `<div class="tt-why">Classifier: ${p.why.replace(/</g, '&lt;')} (${p.conf})</div>` : '')
+        );
+      }).on('mousemove', function (event) {
+        const box = chart.getBoundingClientRect();
+        const tx = event.clientX - box.left, ty = event.clientY - box.top;
+        tooltip
+          .style('left', Math.min(Math.max(tx + 14, 8), box.width - 280) + 'px')
+          .style('top', Math.max(ty - 40, 8) + 'px');
+      }).on('mouseleave', function () {
+        d3.select(this).select('rect').attr('stroke-width', 1);
+        tooltip.classed('visible', false);
+      });
+    });
+
+    // Centre line, war marker, side labels, axis.
+    svg.append('line').attr('x1', margin.left).attr('x2', width - margin.right)
+      .attr('y1', mid).attr('y2', mid)
+      .attr('stroke', 'rgba(255,255,255,0.75)').attr('stroke-width', 1);
+
+    const warX = x(parse(feed.war_start));
+    const warMarker = svg.append('line').attr('x1', warX).attr('x2', warX)
+      .attr('y1', margin.top).attr('y2', height - margin.bottom)
+      .attr('stroke', '#fff').attr('stroke-width', 1.6).attr('stroke-dasharray', '6 4');
+    svg.append('text').attr('x', warX + 7).attr('y', margin.top + 12)
+      .attr('fill', '#fff').attr('font-size', 13).attr('font-weight', 700)
+      .text('the war begins');
+
+    svg.append('text').attr('x', margin.left).attr('y', margin.top + 12)
+      .attr('fill', PRO).attr('font-size', 13).attr('font-weight', 700)
+      .text(`Pro-regime (${feed.pro.toLocaleString()})`);
+    svg.append('text').attr('x', margin.left).attr('y', height - margin.bottom - 4)
+      .attr('fill', ANTI).attr('font-size', 13).attr('font-weight', 700)
+      .text(`Anti-regime (${feed.anti.toLocaleString()})`);
+
+    svg.append('g').attr('transform', `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(x).ticks(d3.timeWeek.every(2)).tickFormat(d3.timeFormat('%d %b')))
+      .call(sel => sel.select('.domain').remove())
+      .attr('color', 'rgba(255,255,255,0.5)').attr('font-size', 12);
+
+    // Tell the page how much was truncated, so the caption can say so.
+    const cappedDays = overflow.length;
+    const deepest = d3.max(perDaySide.values()) || 0;
+    const note = qs('.scrolly-caption');
+    if (note && cappedDays) {
+      note.innerHTML += ` Stacks are capped at ${MAX_STACK} posts per day per side —`
+        + ` ${cappedDays} day-sides exceed that, the busiest being ${deepest} posts on a single day.`;
+    }
+
+    // ---- scrollytelling states -------------------------------------------
+    // Each step dims everything except the posts it is talking about, so the
+    // reader's eye lands on the subset the sentence describes.
+    const war = feed.war_start;
+    const MATCH = {
+      'prewar-anti':  p => p.side === 'anti' && p.date <  war,
+      'war':          p => p.date === war,
+      'postwar-pro':  p => p.side === 'pro'  && p.date >= war,
+      'postwar-anti': p => p.side === 'anti' && p.date >= war,
+      'gaps':         () => false,
+      'all':          () => true,
+    };
+
+    const gapBands = svg.selectAll('rect').filter(function () {
+      return d3.select(this).attr('fill') === 'rgba(255,255,255,0.06)';
+    });
+
+    chart.__setState = function (state) {
+      const test = MATCH[state] || MATCH.all;
+      const noneMatch = state === 'gaps';
+      tileNodes.forEach(({ node, p }) => {
+        node.transition().duration(320)
+          .style('opacity', noneMatch ? 0.12 : (test(p) ? 1 : 0.13));
+      });
+      gapBands.transition().duration(320)
+        .attr('fill', noneMatch ? 'rgba(255,255,255,0.30)' : 'rgba(255,255,255,0.06)');
+      warMarker.transition().duration(320)
+        .attr('stroke-width', state === 'war' ? 3.4 : 1.6)
+        .attr('stroke', state === 'war' ? '#ffd166' : '#fff');
+    };
+    chart.__setState('all');
+  }
+
+  /* Drive the pinned chart from whichever step is in view. */
+  function setupScrolly() {
+    const chart = qs('#stance-timeline');
+    const steps = qsa('.scrolly-steps .step');
+    if (!chart || !steps.length) return;
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        steps.forEach(s => s.classList.remove('is-active'));
+        entry.target.classList.add('is-active');
+        // Past the final step the overlay clears and the chart is the reader's.
+        const scrolly = qs('.scrolly');
+        if (scrolly) scrolly.classList.toggle('released',
+          entry.target.classList.contains('step-release'));
+        if (typeof chart.__setState === 'function') {
+          chart.__setState(entry.target.getAttribute('data-state') || 'all');
+        }
+      });
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+
+    steps.forEach(s => io.observe(s));
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Weekly regime-stance chart (mirrored: pro above the axis, anti below)
+   * with an optional LEGO overlay. Weeks below the support threshold are
+   * drawn hollow on a dashed line so a 2-message week can never read as a
+   * trend. Hover any week for the underlying counts.
+   * ------------------------------------------------------------------ */
+  function renderStanceWeekly(feed, opts = {}) {
+    const container = qs(opts.target);
+    if (!container || !feed || !feed.weeks) return;
+    container.innerHTML = '';
+
+    const weeks = feed.weeks.map(w => ({ ...w, d: d3.timeParse('%Y-%m-%d')(w.week) }));
+    const width = Math.min(940, container.clientWidth || 940);
+    const height = 420;
+    const margin = { top: 34, right: 26, bottom: 42, left: 52 };
+    const PRO = '#2a78d6', ANTI = '#e34946', INK = '#f2f0eb';
+
+    const svg = d3.select(container).append('svg')
+      .attr('class', 'stance-svg')
+      .attr('viewBox', `0 0 ${width} ${height}`);
+
+    const x = d3.scaleTime()
+      .domain(d3.extent(weeks, d => d.d))
+      .range([margin.left, width - margin.right]);
+    const maxUp = d3.max(weeks, d => Math.max(d.pro_pct, opts.lego ? d.lego_pct : 0)) || 100;
+    const maxDn = d3.max(weeks, d => d.anti_pct) || 10;
+    const y = d3.scaleLinear()
+      .domain([-(maxDn + 6), maxUp + 10])
+      .range([height - margin.bottom, margin.top]);
+
+    // Thin weeks get a shaded column — the visual warning that the
+    // percentage behind it rests on very few messages.
+    const wk = (width - margin.left - margin.right) / weeks.length;
+    svg.append('g').selectAll('rect').data(weeks.filter(d => d.thin)).join('rect')
+      .attr('x', d => x(d.d) - wk / 2).attr('y', margin.top)
+      .attr('width', wk).attr('height', height - margin.top - margin.bottom)
+      .attr('fill', 'rgba(255,255,255,0.055)');
+
+    // Gridlines + zero axis
+    svg.append('g').selectAll('line').data(y.ticks(8)).join('line')
+      .attr('x1', margin.left).attr('x2', width - margin.right)
+      .attr('y1', d => y(d)).attr('y2', d => y(d))
+      .attr('stroke', 'rgba(255,255,255,0.07)');
+    svg.append('line')
+      .attr('x1', margin.left).attr('x2', width - margin.right)
+      .attr('y1', y(0)).attr('y2', y(0))
+      .attr('stroke', INK).attr('stroke-width', 1.2);
+
+    const solid = weeks.filter(d => !d.thin);
+    const line = (acc, sign) => d3.line()
+      .defined(d => d[acc] != null)
+      .x(d => x(d.d)).y(d => y(sign * d[acc]));
+
+    // Faint dashed spine through every week, solid only where supported.
+    [['pro_pct', 1, PRO], ['anti_pct', -1, ANTI]].forEach(([acc, sign, col]) => {
+      svg.append('path').datum(weeks).attr('fill', 'none').attr('stroke', col)
+        .attr('stroke-width', 1.2).attr('stroke-dasharray', '4 3')
+        .attr('opacity', 0.55).attr('d', line(acc, sign));
+      svg.append('path').datum(solid).attr('fill', 'none').attr('stroke', col)
+        .attr('stroke-width', 2.4).attr('d', line(acc, sign));
+      svg.append('g').selectAll('circle').data(weeks).join('circle')
+        .attr('cx', d => x(d.d)).attr('cy', d => y(sign * d[acc])).attr('r', 4.6)
+        .attr('fill', d => d.thin ? 'transparent' : col)
+        .attr('stroke', d => d.thin ? col : 'rgba(0,0,0,0.35)')
+        .attr('stroke-width', d => d.thin ? 1.8 : 1);
+    });
+
+    if (opts.lego) {
+      svg.append('path').datum(weeks).attr('fill', 'none').attr('stroke', INK)
+        .attr('stroke-width', 1.4).attr('stroke-dasharray', '4 3')
+        .attr('opacity', 0.7).attr('d', line('lego_pct', 1));
+      svg.append('path').datum(solid).attr('fill', 'none').attr('stroke', INK)
+        .attr('stroke-width', 3.6).attr('d', line('lego_pct', 1));
+      svg.append('g').selectAll('circle').data(weeks).join('circle')
+        .attr('cx', d => x(d.d)).attr('cy', d => y(d.lego_pct)).attr('r', 4.6)
+        .attr('fill', d => d.thin ? 'transparent' : INK)
+        .attr('stroke', INK).attr('stroke-width', d => d.thin ? 1.8 : 1);
+    }
+
+    // War marker
+    const war = d3.timeParse('%Y-%m-%d')(feed.war_start);
+    svg.append('line').attr('x1', x(war)).attr('x2', x(war))
+      .attr('y1', margin.top - 8).attr('y2', height - margin.bottom)
+      .attr('stroke', INK).attr('stroke-width', 1.6).attr('stroke-dasharray', '6 4');
+    svg.append('text').attr('x', x(war) + 8).attr('y', margin.top - 12)
+      .attr('fill', INK).attr('font-size', 13).attr('font-weight', 700)
+      .text('the war begins');
+
+    // Axes — y labels are absolute values because the axis is mirrored.
+    svg.append('g').attr('transform', `translate(${margin.left},0)`)
+      .call(d3.axisLeft(y).ticks(8).tickFormat(v => Math.abs(v) + '%'))
+      .call(g => g.select('.domain').remove())
+      .attr('color', 'rgba(255,255,255,0.5)').attr('font-size', 12);
+    svg.append('g').attr('transform', `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(x).ticks(7).tickFormat(d3.timeFormat('%d %b')))
+      .call(g => g.select('.domain').remove())
+      .attr('color', 'rgba(255,255,255,0.5)').attr('font-size', 12);
+
+    // Hover layer: one invisible band per week drives the tooltip.
+    const tip = d3.select(container).append('div').attr('class', 'stance-tooltip');
+    const focus = svg.append('line').attr('y1', margin.top).attr('y2', height - margin.bottom)
+      .attr('stroke', 'rgba(255,255,255,0.35)').attr('stroke-width', 1).style('opacity', 0);
+
+    svg.append('g').selectAll('rect').data(weeks).join('rect')
+      .attr('x', d => x(d.d) - wk / 2).attr('y', margin.top)
+      .attr('width', wk).attr('height', height - margin.top - margin.bottom)
+      .attr('fill', 'transparent').style('cursor', 'crosshair')
+      .on('mousemove', function (event, d) {
+        focus.attr('x1', x(d.d)).attr('x2', x(d.d)).style('opacity', 1);
+        const fmt = d3.timeFormat('%d %b %Y');
+        tip.style('opacity', 1)
+          .style('left', Math.min(x(d.d) / width * 100, 72) + '%')
+          .style('top', '8px')
+          .html(
+            `<strong>week of ${fmt(d.d)}</strong>` +
+            `<div class="tt-row"><span class="sw" style="background:${PRO}"></span>Pro-regime <b>${d.pro_pct}%</b> <em>(${d.pro})</em></div>` +
+            `<div class="tt-row"><span class="sw" style="background:${ANTI}"></span>Anti-regime <b>${d.anti_pct}%</b> <em>(${d.anti})</em></div>` +
+            (opts.lego ? `<div class="tt-row"><span class="sw" style="background:${INK}"></span>LEGO <b>${d.lego_pct}%</b> <em>(${d.lego})</em></div>` : '') +
+            `<div class="tt-n">${d.n} messages that week${d.thin ? ' — too few to be reliable' : ''}</div>`
+          );
+      })
+      .on('mouseleave', () => { tip.style('opacity', 0); focus.style('opacity', 0); });
+  }
+
+  /* Gallery of every post the LEGO classifier flagged. */
+  function renderLegoGallery(feed) {
+    const container = qs('#lego-gallery');
+    if (!container || !feed || !feed.posts) return;
+    container.innerHTML = '';
+    feed.posts
+      .slice()
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .forEach(p => {
+        const card = el('figure', { class: 'lego-card' });
+        if (p.poster) {
+          card.appendChild(el('img', { src: p.poster, loading: 'lazy', alt: p.what || 'LEGO post' }));
+        }
+        card.appendChild(el('figcaption', {}, [
+          el('span', { class: 'lego-date' }, [p.date]),
+          el('span', { class: 'lego-what' }, [p.what || '']),
+        ]));
+        card.title = p.text || '';
+        container.appendChild(card);
+      });
+  }
+
   function renderTimeline(data) {
     const container = qs('#timeline-chart');
     if (!container) return;
@@ -386,7 +724,7 @@
       .attr('x', margin.left - 34)
       .attr('y', margin.top - 16)
       .attr('fill', '#888')
-      .attr('font-size', 10)
+      .attr('font-size', 12)
       .attr('letter-spacing', '0.05em')
       .attr('text-transform', 'uppercase')
       .text('Posts/day');
@@ -897,7 +1235,7 @@
       if (stats[k] != null) n.setAttribute('data-value', stats[k]);
     });
 
-    renderTimeline(timeline);
+    if (qs('#timeline-chart')) renderTimeline(timeline);
     renderChapter(posts.ch1_ai, 'ch1-posts', { cols: 'three' });
     renderChapter2(posts.ch2_regime);
     renderLiveFeed(feb28);
@@ -914,15 +1252,31 @@
       ch7.appendChild(grid);
     }
 
-    renderMosaic(mosaic);
+    if (qs('#mosaic-canvas')) renderMosaic(mosaic);
 
     // New: trackers, carousel, regime scatter
-    renderTrackers(stats);
+    if (qs('.chapter-tracker')) renderTrackers(stats);
     setupCarousel(carousel);
     renderRegimeScatter(regime);
 
+    // Classifier charts (Phase 1 stance, Phase 2 LEGO)
+    try {
+      const [weekly, lego, timeline] = await Promise.all([
+        loadJSON('data/stance_weekly.json'),
+        loadJSON('data/lego.json'),
+        loadJSON('data/stance_posts.json'),
+      ]);
+      renderStanceTimeline(timeline);
+      setupScrolly();
+      renderStanceWeekly(weekly, { lego: false, target: '#stance-chart' });
+      renderStanceWeekly(weekly, { lego: true,  target: '#lego-chart' });
+      renderLegoGallery(lego);
+    } catch (err) {
+      console.error('classifier charts failed', err);
+    }
+
     setupVideoController();
-    setupStatCounters();
+    if (qs('.stat-card')) setupStatCounters();
     setupProgressBar();
 
     window.addEventListener('resize', () => {

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Row {{ row_id }} — Explosive Media Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <header>
+        <div class="header-inner">
+            <a href="/?section={{ section }}" class="back-link">&larr; Back to Dashboard</a>
+            <h1><span style="color: {{ section_color }};">{{ section_label }}</span> &mdash; Message <span class="accent">#{{ row_id }}</span></h1>
+            <div class="nav-arrows">
+                {% set qs = 'section=' ~ section ~ '&date_filter=' ~ date_filter ~ '&media_only=' ~ media_only ~ '&search=' ~ search ~ '&error_filter=' ~ error_filter %}
+                {% if prev_id is not none %}<a href="/row/{{ prev_id }}?{{ qs }}" class="btn btn-sm">&larr; Prev</a>{% endif %}
+                {% if next_id is not none %}<a href="/row/{{ next_id }}?{{ qs }}" class="btn btn-sm">Next &rarr;</a>{% endif %}
+                {% if error_filter %}
+                    <span style="margin-left:10px;font-size:0.85em;color:#d2a8ff;">
+                    {% if queue_pos %}queue {{ queue_pos }} of {{ queue_total }}{% else %}✓ done — {{ queue_total }} left in queue{% endif %}
+                    </span>
+                {% endif %}
+                {% if not next_id and error_filter %}<a href="/?{{ qs }}" class="btn btn-sm">Back to queue</a>{% endif %}
+                {% if error_filter %}
+                    <button class="btn btn-sm"
+                            style="background:#d2a8ff;color:#111;font-weight:600;margin-left:10px;"
+                            onclick="saveAllAndNext({{ row_id }}, '{% if next_id is not none %}/row/{{ next_id }}?{{ qs }}{% else %}/?{{ qs }}{% endif %}')">
+                        Save &amp; Next &rarr;
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <div class="detail-layout">
+        <!-- Left: Media -->
+        <div class="detail-media">
+            {% if row.media_filename %}
+                {% if media_is_video %}
+                    <video src="/media/{{ row.media_filename }}" controls class="detail-video" preload="metadata"></video>
+                {% elif media_is_image %}
+                    <img src="/media/{{ row.media_filename }}" class="detail-image">
+                {% endif %}
+                <p class="media-filename">{{ row.media_filename }}</p>
+            {% else %}
+                <div class="no-media-detail">No media for this message</div>
+            {% endif %}
+
+            <!-- Screenshots -->
+            {% if screenshots %}
+            <div class="screenshots-section">
+                <h3>Screenshots</h3>
+                <div class="screenshots-grid">
+                    {% for ss in screenshots %}
+                    <img src="/screenshots/{{ ss }}" class="screenshot-thumb" loading="lazy">
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right: Data & Actions -->
+        <div class="detail-data">
+            <div class="meta-bar">
+                <span class="meta-item"><strong>Date:</strong> {{ row.date }}</span>
+                <span class="meta-item"><strong>Time (EST):</strong> {{ row.time_est }}</span>
+                <span class="meta-item"><strong>Has Media:</strong> <span class="badge badge-{{ 'yes' if row.has_media == 'Y' else 'no' }}">{{ row.has_media }}</span></span>
+            </div>
+
+            {% if row.get('_p1_stance') %}
+            <!-- Phase 1 stance: your label vs the model's, with its reasoning -->
+            <div class="text-block" style="border-left:3px solid #d2a8ff;padding-left:12px;">
+                <h3>Phase 1 — Pro/Anti-regime
+                    {% if row.get('_p1_stance') != row.get('_stance_truth') %}
+                        <span style="color:#f85149;font-size:0.75em;">DISAGREEMENT</span>
+                    {% else %}
+                        <span style="color:#7ee787;font-size:0.75em;">agrees</span>
+                    {% endif %}
+                </h3>
+                <div style="display:flex;gap:24px;margin-bottom:8px;">
+                    <span><strong>Your label:</strong>
+                        <span style="color:#7ee787;">{{ row.get('_stance_truth') }}</span></span>
+                    <span><strong>Model:</strong>
+                        <span style="color:#d2a8ff;">{{ row.get('_p1_stance') }}</span>
+                        <span style="color:#888;font-size:0.85em;">({{ row.get('_p1_confidence') }} confidence)</span></span>
+                </div>
+                <div style="color:#bbb;font-size:0.9em;"><em>Model's reasoning:</em> {{ row.get('_p1_reason') }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Persian text -->
+            <div class="text-block">
+                <h3>Persian (Original)</h3>
+                <div class="text-content persian" dir="rtl" lang="fa">{{ row.message_text_persian }}</div>
+            </div>
+
+            <!-- English text -->
+            <div class="text-block">
+                <h3>English Translation</h3>
+                <div class="text-content english">{{ row.message_text_english }}</div>
+            </div>
+
+            <!-- Processing Actions -->
+            <div class="actions-panel">
+                <h3>Processing Actions</h3>
+                <div class="action-buttons">
+                    {% if media_is_video %}
+                    <button class="btn btn-action" onclick="transcribe({{ row_id }})">
+                        Transcribe Audio
+                    </button>
+                    <button class="btn btn-action" onclick="takeScreenshots({{ row_id }})">
+                        Take Screenshots
+                    </button>
+                    {% endif %}
+                    {% if row.media_filename %}
+                    <button class="btn btn-action" onclick="runOCR({{ row_id }})">
+                        OCR Screen Text
+                    </button>
+                    {% endif %}
+                    <button class="btn btn-action" onclick="autoKeywords({{ row_id }})">
+                        Auto-Generate Keywords
+                    </button>
+                </div>
+                <div id="action-status" class="action-status"></div>
+            </div>
+
+            <!-- Audio Transcription V2 (editable) -->
+            <div class="text-block">
+                <h3>Audio Transcription V2 (Persian) <span style="font-size:0.7em;color:#888;">— editable</span></h3>
+                <textarea class="text-content persian editable-field" dir="rtl" lang="fa" id="transcription-persian-v2" rows="4">{{ row.get('audio_transcription_persian_v2', '') or '' }}</textarea>
+            </div>
+            <div class="text-block">
+                <h3>Audio Transcription (English) <span style="font-size:0.7em;color:#888;">— editable</span></h3>
+                <textarea class="text-content english editable-field" id="transcription-english" rows="4">{{ row.get('audio_transcription_english', '') or '' }}</textarea>
+            </div>
+            <div style="margin-bottom:1.5rem;">
+                <button class="btn btn-action" onclick="saveTranscription({{ row_id }})">Save Transcription Edits</button>
+                <span id="save-transcription-status" style="margin-left:1rem;"></span>
+            </div>
+
+            <!-- Audio Transcription V1 (read-only, for reference) -->
+            <div class="text-block" style="opacity:0.6;">
+                <h3>Audio Transcription V1 (Persian) <span style="font-size:0.7em;">— original, read-only</span></h3>
+                <div class="text-content persian" dir="rtl" lang="fa">{{ row.get('audio_transcription_persian', '') or '—' }}</div>
+            </div>
+
+            <!-- OCR -->
+            <div class="text-block">
+                <h3>OCR Text (Persian) <span style="font-size:0.7em;color:#888;">— editable</span></h3>
+                <textarea class="text-content persian editable-field" dir="rtl" lang="fa" id="ocr-persian" rows="3">{{ row.get('ocr_text_persian', '') or '' }}</textarea>
+            </div>
+            <div class="text-block">
+                <h3>OCR Text (English) <span style="font-size:0.7em;color:#888;">— editable</span></h3>
+                <textarea class="text-content english editable-field" id="ocr-english" rows="3">{{ row.get('ocr_text_english', '') or '' }}</textarea>
+            </div>
+            <div style="margin-bottom:1.5rem;">
+                <button class="btn btn-action" onclick="saveOCR({{ row_id }})">Save OCR Edits</button>
+                <span id="save-ocr-status" style="margin-left:1rem;"></span>
+            </div>
+
+            <!-- Keywords -->
+            <div class="text-block">
+                <h3>Keywords</h3>
+                <div class="keywords-editor">
+                    <input type="text" id="keywords-input" value="{{ row.get('keywords', '') }}" placeholder="Enter keywords, comma-separated...">
+                    <button class="btn btn-sm" onclick="saveKeywords({{ row_id }})">Save</button>
+                </div>
+            </div>
+
+            <!-- Theme -->
+            <div class="text-block">
+                <h3>Theme</h3>
+                <div class="keywords-editor">
+                    <select id="theme-input">
+                        <option value="" {% if not row.get('theme') or row.get('theme') == '' %}selected{% endif %}>— Select theme —</option>
+                        <option value="Using AI" {% if row.get('theme') == 'Using AI' %}selected{% endif %}>Using AI</option>
+                        <option value="Anti-regime" {% if row.get('theme') == 'Anti-regime' %}selected{% endif %}>Anti-regime</option>
+                        <option value="Pro-regime" {% if row.get('theme') == 'Pro-regime' %}selected{% endif %}>Pro-regime</option>
+                        <option value="Pop culture" {% if row.get('theme') == 'Pop culture' %}selected{% endif %}>Pop culture</option>
+                        <option value="Foreign intervention" {% if row.get('theme') == 'Foreign intervention' %}selected{% endif %}>Foreign intervention</option>
+                        <option value="Iranian economy" {% if row.get('theme') == 'Iranian economy' %}selected{% endif %}>Iranian economy</option>
+                        <option value="International news" {% if row.get('theme') == 'International news' %}selected{% endif %}>International news</option>
+                        <option value="Weather and landscape" {% if row.get('theme') == 'Weather and landscape' %}selected{% endif %}>Weather and landscape</option>
+                        <option value="Sports" {% if row.get('theme') == 'Sports' %}selected{% endif %}>Sports</option>
+                        <option value="Religious content" {% if row.get('theme') == 'Religious content' %}selected{% endif %}>Religious content</option>
+                        <option value="War coverage" {% if row.get('theme') == 'War coverage' %}selected{% endif %}>War coverage</option>
+                        <option value="Protests" {% if row.get('theme') == 'Protests' %}selected{% endif %}>Protests</option>
+                        <option value="Gaza Genocide" {% if row.get('theme') == 'Gaza Genocide' %}selected{% endif %}>Gaza Genocide</option>
+                        <option value="Hamas" {% if row.get('theme') == 'Hamas' %}selected{% endif %}>Hamas</option>
+                        <option value="LEGO" {% if row.get('theme') == 'LEGO' %}selected{% endif %}>LEGO</option>
+                        <option value="Exams" {% if row.get('theme') == 'Exams' %}selected{% endif %}>Exams</option>
+                        <option value="Health" {% if row.get('theme') == 'Health' %}selected{% endif %}>Health</option>
+                    </select>
+                    <button class="btn btn-sm" onclick="saveTheme({{ row_id }})">Save</button>
+                </div>
+            </div>
+
+            {% if section == 'golden-dataset' %}
+            {% set theme_options = ['Using AI','Anti-regime','Pro-regime','Pop culture','Foreign intervention','Iranian economy','International news','Religious content','Sports','Hamas','Gaza Genocide','Protests','Exams','Health','LEGO','War coverage','Weather and landscape'] %}
+            {% for extra in ['theme2','theme3','theme4'] %}
+            <div class="text-block">
+                <h3>{{ extra|capitalize }} <span style="font-size:0.7em;color:#888;">— additional theme</span></h3>
+                <div class="keywords-editor">
+                    <select id="{{ extra }}-input">
+                        <option value="" {% if not row.get(extra) %}selected{% endif %}>— Select theme —</option>
+                        {% for opt in theme_options %}
+                        <option value="{{ opt }}" {% if row.get(extra) == opt %}selected{% endif %}>{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-sm" onclick="saveThemeExtra({{ row_id }}, '{{ extra }}')">Save</button>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- Include Person -->
+            <div class="text-block">
+                <h3>Include Person</h3>
+                <div class="keywords-editor">
+                    <input type="text" id="person-input" value="{{ row.get('include_person', '') }}" placeholder="Person name (if any)...">
+                    <button class="btn btn-sm" onclick="savePerson({{ row_id }})">Save</button>
+                </div>
+            </div>
+
+            <!-- AI Generated -->
+            <div class="text-block">
+                <h3>AI Generated</h3>
+                <div class="keywords-editor">
+                    <select id="ai-generated-input">
+                        <option value="" {% if not row.get('AI_generated') or row.get('AI_generated') == '' %}selected{% endif %}>— Unknown —</option>
+                        <option value="Yes" {% if row.get('AI_generated') == 'Yes' %}selected{% endif %}>Yes</option>
+                        <option value="No" {% if row.get('AI_generated') == 'No' %}selected{% endif %}>No</option>
+                    </select>
+                    <button class="btn btn-sm" onclick="saveAIGenerated({{ row_id }})">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>window.__SECTION = "{{ section }}";</script>
+    <script src="/static/js/app.js?v={{ asset_version() }}"></script>
+</body>
+</html>

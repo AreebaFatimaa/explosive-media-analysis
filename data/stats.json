@@ -4,32 +4,32 @@
   "images": 1665,
   "text_only": 194,
   "themes": {
-    "War coverage": 585,
-    "International news": 396,
-    "Sports": 317,
-    "Weather and landscape": 246,
-    "Foreign intervention": 219,
-    "Pop culture": 183,
-    "Iranian economy": 180,
-    "Pro-regime": 123,
-    "Gaza Genocide": 98,
-    "Protests": 93,
-    "Anti-regime": 85,
-    "Using AI": 84,
-    "Exams": 53,
-    "Religious content": 49,
+    "Pro-regime": 1138,
+    "War coverage": 591,
+    "International news": 412,
+    "Sports": 320,
+    "Weather and landscape": 249,
+    "Foreign intervention": 224,
+    "Pop culture": 184,
+    "Iranian economy": 183,
+    "Anti-regime": 156,
+    "Gaza Genocide": 99,
+    "Protests": 87,
+    "Using AI": 86,
+    "Exams": 57,
+    "Religious content": 48,
     "Health": 42,
-    "LEGO": 40,
+    "LEGO": 24,
     "Hamas": 4
   },
   "top_keywords": {
-    "Iran": 359,
-    "Trump": 319,
+    "Iran": 360,
+    "Trump": 320,
     "football": 158,
     "Israel": 130,
     "Venezuela": 104,
     "diplomacy": 99,
-    "negotiations": 84,
+    "negotiations": 86,
     "geopolitics": 80,
     "Tehran": 74,
     "Russia": 67,
@@ -65,7 +65,7 @@
     "precipitation": 26
   },
   "top_persons": {
-    "Trump": 226,
+    "Trump": 228,
     "Netanyahu": 19,
     "Pezeshkian": 11,
     "Maduro": 11,
@@ -81,17 +81,17 @@
     "Nicolas Maduro": 5,
     "Diosdado Cabello": 5
   },
-  "ai_yes": 126,
-  "ai_no": 2685,
+  "ai_yes": 129,
+  "ai_no": 2684,
   "trackers": {
     "ch1_ai": {
       "label": "Posts about AI",
-      "count": 87,
+      "count": 90,
       "subitems": [
         {
           "label": "AI‑generated posts",
-          "count": 126,
-          "percent": 4.44
+          "count": 129,
+          "percent": 4.54
         },
         {
           "label": "Sanctions / VPN bypass",
@@ -99,28 +99,28 @@
           "percent": 2.08
         }
       ],
-      "percent": 3.06
+      "percent": 3.17
     },
     "ch2_regime": {
       "label": "Anti / pro‑regime posts",
-      "count": 218,
+      "count": 1294,
       "subitems": [
         {
           "label": "Anti‑regime",
-          "count": 85,
-          "percent": 2.99
+          "count": 156,
+          "percent": 5.49
         },
         {
           "label": "Pro‑regime",
-          "count": 134,
-          "percent": 4.72
+          "count": 1138,
+          "percent": 40.07
         }
       ],
-      "percent": 7.68
+      "percent": 45.56
     },
     "ch3_popculture": {
       "label": "Pop culture posts",
-      "count": 247,
+      "count": 251,
       "subitems": [
         {
           "label": "Exam‑night memes",
@@ -133,11 +133,11 @@
           "percent": 2.36
         }
       ],
-      "percent": 8.7
+      "percent": 8.84
     },
     "ch4_intervention": {
       "label": "Foreign intervention posts",
-      "count": 230,
+      "count": 235,
       "subitems": [
         {
           "label": "Mexico / cartel",
@@ -145,11 +145,11 @@
           "percent": 0.35
         }
       ],
-      "percent": 8.1
+      "percent": 8.27
     },
     "ch5_economy": {
       "label": "Economy posts",
-      "count": 245,
+      "count": 249,
       "subitems": [
         {
           "label": "Sanctions",
@@ -157,11 +157,11 @@
           "percent": 2.01
         }
       ],
-      "percent": 8.63
+      "percent": 8.77
     },
     "ch6_international": {
       "label": "International news posts",
-      "count": 559,
+      "count": 574,
       "subitems": [
         {
           "label": "Gaza / genocide",
@@ -175,15 +175,15 @@
         },
         {
           "label": "Sports",
-          "count": 347,
-          "percent": 12.22
+          "count": 349,
+          "percent": 12.29
         }
       ],
-      "percent": 19.68
+      "percent": 20.21
     },
     "ch7_weather": {
       "label": "Weather / landscape posts",
-      "count": 314,
+      "count": 317,
       "subitems": [
         {
           "label": "Snow",
@@ -196,7 +196,7 @@
           "percent": 1.16
         }
       ],
-      "percent": 11.06
+      "percent": 11.16
     }
   }
 }

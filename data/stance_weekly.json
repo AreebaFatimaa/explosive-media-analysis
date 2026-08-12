@@ -1,0 +1,160 @@
+{
+  "war_start": "2026-02-28",
+  "min_week_n": 20,
+  "weeks": [
+    {
+      "week": "2025-12-28",
+      "n": 224,
+      "pro": 86,
+      "anti": 19,
+      "lego": 0,
+      "pro_pct": 38.39,
+      "anti_pct": 8.48,
+      "lego_pct": 0.0,
+      "thin": false
+    },
+    {
+      "week": "2026-01-04",
+      "n": 316,
+      "pro": 130,
+      "anti": 28,
+      "lego": 0,
+      "pro_pct": 41.14,
+      "anti_pct": 8.86,
+      "lego_pct": 0.0,
+      "thin": false
+    },
+    {
+      "week": "2026-01-18",
+      "n": 5,
+      "pro": 0,
+      "anti": 2,
+      "lego": 0,
+      "pro_pct": 0.0,
+      "anti_pct": 40.0,
+      "lego_pct": 0.0,
+      "thin": true
+    },
+    {
+      "week": "2026-01-25",
+      "n": 285,
+      "pro": 117,
+      "anti": 19,
+      "lego": 1,
+      "pro_pct": 41.05,
+      "anti_pct": 6.67,
+      "lego_pct": 0.35,
+      "thin": false
+    },
+    {
+      "week": "2026-02-01",
+      "n": 460,
+      "pro": 167,
+      "anti": 16,
+      "lego": 0,
+      "pro_pct": 36.3,
+      "anti_pct": 3.48,
+      "lego_pct": 0.0,
+      "thin": false
+    },
+    {
+      "week": "2026-02-08",
+      "n": 434,
+      "pro": 163,
+      "anti": 20,
+      "lego": 2,
+      "pro_pct": 37.56,
+      "anti_pct": 4.61,
+      "lego_pct": 0.46,
+      "thin": false
+    },
+    {
+      "week": "2026-02-15",
+      "n": 453,
+      "pro": 179,
+      "anti": 24,
+      "lego": 2,
+      "pro_pct": 39.51,
+      "anti_pct": 5.3,
+      "lego_pct": 0.44,
+      "thin": false
+    },
+    {
+      "week": "2026-02-22",
+      "n": 516,
+      "pro": 181,
+      "anti": 27,
+      "lego": 0,
+      "pro_pct": 35.08,
+      "anti_pct": 5.23,
+      "lego_pct": 0.0,
+      "thin": false
+    },
+    {
+      "week": "2026-03-01",
+      "n": 2,
+      "pro": 1,
+      "anti": 0,
+      "lego": 1,
+      "pro_pct": 50.0,
+      "anti_pct": 0.0,
+      "lego_pct": 50.0,
+      "thin": true
+    },
+    {
+      "week": "2026-03-08",
+      "n": 82,
+      "pro": 62,
+      "anti": 1,
+      "lego": 8,
+      "pro_pct": 75.61,
+      "anti_pct": 1.22,
+      "lego_pct": 9.76,
+      "thin": false
+    },
+    {
+      "week": "2026-03-15",
+      "n": 22,
+      "pro": 19,
+      "anti": 0,
+      "lego": 2,
+      "pro_pct": 86.36,
+      "anti_pct": 0.0,
+      "lego_pct": 9.09,
+      "thin": false
+    },
+    {
+      "week": "2026-03-22",
+      "n": 21,
+      "pro": 19,
+      "anti": 0,
+      "lego": 5,
+      "pro_pct": 90.48,
+      "anti_pct": 0.0,
+      "lego_pct": 23.81,
+      "thin": false
+    },
+    {
+      "week": "2026-03-29",
+      "n": 9,
+      "pro": 5,
+      "anti": 0,
+      "lego": 3,
+      "pro_pct": 55.56,
+      "anti_pct": 0.0,
+      "lego_pct": 33.33,
+      "thin": true
+    },
+    {
+      "week": "2026-04-05",
+      "n": 11,
+      "pro": 9,
+      "anti": 0,
+      "lego": 0,
+      "pro_pct": 81.82,
+      "anti_pct": 0.0,
+      "lego_pct": 0.0,
+      "thin": true
+    }
+  ]
+}

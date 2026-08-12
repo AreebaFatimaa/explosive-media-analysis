@@ -105,6 +105,26 @@ def main():
     themes = collections.Counter(
         r.get('theme', '').strip() for r in rows if r.get('theme', '').strip()
     )
+
+    # Pro/anti-regime and LEGO counts come from the dedicated classifiers, not from
+    # the 17-way `theme` column, which is a much weaker signal. Without this the
+    # stats panel and the ch2 tracker print a different number from the narrative
+    # for the same quantity.
+    stance_pred = _read_indexed(STANCE_CSV)
+    lego_pred = _read_indexed(LEGO_CSV)
+    stance_counts = collections.Counter(
+        (stance_pred.get(i, {}).get('p1_stance') or '').strip()
+        for i in range(len(rows))
+    )
+    lego_count = sum(
+        1 for i in range(len(rows))
+        if (lego_pred.get(i, {}).get('lego') or '').strip().lower() in ('yes', 'true')
+    )
+    if stance_pred:
+        themes['Pro-regime'] = stance_counts.get('Pro-regime', 0)
+        themes['Anti-regime'] = stance_counts.get('Anti-regime', 0)
+    if lego_pred:
+        themes['LEGO'] = lego_count
     keywords = collections.Counter()
     for r in rows:
         kws = r.get('keywords', '').strip()
@@ -142,10 +162,10 @@ def main():
         },
         'ch2_regime': {
             'label': 'Anti / pro‑regime posts',
-            'count': sum(1 for r in rows if theme_match(r, {'Anti-regime', 'Pro-regime'}) or kw_match(r, ['anti-regime', 'pro-regime', 'irgc'])),
+            'count': stance_counts.get('Pro-regime', 0) + stance_counts.get('Anti-regime', 0),
             'subitems': [
-                {'label': 'Anti‑regime', 'count': sum(1 for r in rows if theme_match(r, {'Anti-regime'}) or kw_match(r, ['anti-regime']))},
-                {'label': 'Pro‑regime',  'count': sum(1 for r in rows if theme_match(r, {'Pro-regime'})  or kw_match(r, ['pro-regime', 'irgc']))},
+                {'label': 'Anti‑regime', 'count': stance_counts.get('Anti-regime', 0)},
+                {'label': 'Pro‑regime',  'count': stance_counts.get('Pro-regime', 0)},
             ],
         },
         'ch3_popculture': {
@@ -413,7 +433,154 @@ def main():
     ]
     write_json('carousel.json', carousel, indent=2)
 
+    build_classifier_feeds(rows)
+
     print('\nDone.')
+
+
+# ---------------------------------------------------------------------------
+# Phase 1 (pro/anti-regime stance) and Phase 2 (LEGO) classifier outputs.
+# These live in their own CSVs rather than the master file, so they are merged
+# here by row index — the classifiers were run over the corpus in file order.
+# ---------------------------------------------------------------------------
+
+STANCE_CSV = os.path.join(SITE_ROOT, 'CSVs', 'phase1_stance_predictions.csv')
+LEGO_CSV = os.path.join(SITE_ROOT, 'CSVs', 'lego_predictions.csv')
+WAR_START = '2026-02-28'
+MIN_WEEK_N = 20          # below this a weekly percentage is not load-bearing
+
+
+def _read_indexed(path):
+    """Read a predictions CSV keyed by original_row."""
+    if not os.path.exists(path):
+        print(f'  !! missing {os.path.basename(path)} — skipping')
+        return {}
+    out = {}
+    with open(path, encoding='utf-8-sig') as f:
+        for r in csv.DictReader(f):
+            try:
+                out[int(r['original_row'])] = r
+            except (KeyError, ValueError):
+                continue
+    return out
+
+
+def _week_start(datestr):
+    """Monday-anchored week start, matching the notebook's W-SUN periods."""
+    import datetime as _dt
+    d = _dt.date.fromisoformat(datestr)
+    return (d - _dt.timedelta(days=(d.weekday() + 1) % 7)).isoformat()
+
+
+def build_classifier_feeds(rows):
+    stance = _read_indexed(STANCE_CSV)
+    lego = _read_indexed(LEGO_CSV)
+    if not stance:
+        return
+
+    weeks = collections.defaultdict(
+        lambda: {'n': 0, 'pro': 0, 'anti': 0, 'neither': 0, 'lego': 0})
+    for i, row in enumerate(rows):
+        date = (row.get('date') or '').strip()
+        if not date:
+            continue
+        w = weeks[_week_start(date)]
+        w['n'] += 1
+        s = (stance.get(i, {}).get('p1_stance') or '').strip()
+        if s == 'Pro-regime':
+            w['pro'] += 1
+        elif s == 'Anti-regime':
+            w['anti'] += 1
+        elif s:
+            w['neither'] += 1
+        if (lego.get(i, {}).get('lego') or '').strip() == 'Yes':
+            w['lego'] += 1
+
+    weekly = []
+    for wk in sorted(weeks):
+        v = weeks[wk]
+        n = v['n'] or 1
+        weekly.append({
+            'week': wk,
+            'n': v['n'],
+            'pro': v['pro'], 'anti': v['anti'], 'lego': v['lego'],
+            'pro_pct': round(v['pro'] / n * 100, 2),
+            'anti_pct': round(v['anti'] / n * 100, 2),
+            'lego_pct': round(v['lego'] / n * 100, 2),
+            # Weeks under the threshold are drawn hollow/dashed on the site.
+            'thin': v['n'] < MIN_WEEK_N,
+        })
+    write_json('stance_weekly.json', {
+        'war_start': WAR_START,
+        'min_week_n': MIN_WEEK_N,
+        'weeks': weekly,
+    }, indent=2)
+
+    # One record per pro/anti post for the interactive key-frame timeline.
+    # Thumbnails come from thumbs/ (see make_thumbs.py); posts without a visual
+    # carry no thumb and are drawn as solid colour tiles.
+    thumbs_dir = os.path.join(SITE_ROOT, 'thumbs')
+    stance_posts = []
+    for i, row in enumerate(rows):
+        s = (stance.get(i, {}).get('p1_stance') or '').strip()
+        if s not in ('Pro-regime', 'Anti-regime'):
+            continue
+        media = (row.get('media_filename') or '').strip()
+        thumb = ''
+        if media:
+            cand = os.path.splitext(media)[0] + '.jpg'
+            if os.path.exists(os.path.join(thumbs_dir, cand)):
+                thumb = 'thumbs/' + cand
+        stance_posts.append({
+            'row': i,
+            'date': row.get('date', ''),
+            'side': 'pro' if s == 'Pro-regime' else 'anti',
+            'thumb': thumb,
+            'is_video': media.lower().endswith(('.mp4', '.mov')),
+            'text': (row.get('message_text_english') or '').strip()[:260],
+            'why': (stance.get(i, {}).get('p1_reason') or '').strip()[:200],
+            'conf': (stance.get(i, {}).get('p1_confidence') or '').strip(),
+        })
+
+    have_dates = sorted({r.get('date', '') for r in rows if r.get('date')})
+    write_json('stance_posts.json', {
+        'war_start': WAR_START,
+        'dates_with_data': have_dates,
+        'pro': sum(1 for p in stance_posts if p['side'] == 'pro'),
+        'anti': sum(1 for p in stance_posts if p['side'] == 'anti'),
+        'posts': stance_posts,
+    })
+
+    # Every post the LEGO classifier flagged, for the gallery under the chart.
+    lego_posts = []
+    for i, row in enumerate(rows):
+        if (lego.get(i, {}).get('lego') or '').strip() != 'Yes':
+            continue
+        media = (row.get('media_filename') or '').strip()
+        shot = ''
+        if media.lower().endswith(('.mp4', '.mov')):
+            stem = os.path.splitext(media)[0]
+            cand = os.path.join(SHOTS_DIR, row.get('date', ''), stem + '.jpg')
+            if os.path.exists(cand):
+                shot = f"screenshots/{row.get('date','')}/{stem}.jpg"
+        elif media:
+            shot = f'media/{media}'
+        lego_posts.append({
+            'original_row': i,
+            'date': row.get('date', ''),
+            'media': media,
+            'poster': shot,
+            'is_video': media.lower().endswith(('.mp4', '.mov')),
+            'text': (row.get('message_text_english') or '')[:280],
+            'what': lego.get(i, {}).get('lego_what', ''),
+            'stance': (stance.get(i, {}).get('p1_stance') or '').strip(),
+        })
+    write_json('lego.json', {
+        'count': len(lego_posts),
+        'pre_war': sum(1 for p in lego_posts if p['date'] < WAR_START),
+        'post_war': sum(1 for p in lego_posts if p['date'] >= WAR_START),
+        'posts': lego_posts,
+    }, indent=2)
 
 
 if __name__ == '__main__':
